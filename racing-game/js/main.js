@@ -12,8 +12,8 @@ class RacingGame {
         this.gameEngine = new GameEngine(this.canvas);
         this.sensorManager = new SensorManager();
         
-        const worldSize = { width: 3000, height: 2000 };
-        this.carPhysics = new CarPhysics(worldSize.width, worldSize.height);
+        this.worldSize = { width: 3000, height: 2000 };
+        this.carPhysics = new CarPhysics(this.worldSize.width, this.worldSize.height);
 
         this.gameState = {
             isPlaying: false,
@@ -26,7 +26,7 @@ class RacingGame {
             lastCheckpoint: -1
         };
 
-        this.track = this.createTrack(worldSize.width, worldSize.height);
+        this.track = this.createTrack(this.worldSize.width, this.worldSize.height);
         this.carPhysics.setTrack(this.track);
 
         this.init();
@@ -34,6 +34,7 @@ class RacingGame {
 
     init() {
         console.log('🏎️ 레이싱 게임 초기화');
+        this.handleResize();
         this.gameEngine.setCameraTarget(this.carPhysics.playerCar);
         this.setupEventListeners();
         this.startGame();
@@ -157,7 +158,7 @@ class RacingGame {
             totalLaps: 3,
             lastCheckpoint: -1
         };
-        this.carPhysics = new CarPhysics(this.track.width, this.track.height);
+        this.carPhysics = new CarPhysics(this.worldSize.width, this.worldSize.height);
         this.carPhysics.setTrack(this.track);
         this.gameEngine.setCameraTarget(this.carPhysics.playerCar);
         document.getElementById('gameOverScreen').style.display = 'none';

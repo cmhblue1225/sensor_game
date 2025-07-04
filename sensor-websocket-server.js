@@ -36,6 +36,10 @@ function createRequestHandler() {
             // 볼 굴리기 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/ball-rolling-game/'.length);
             filePath = path.join(__dirname, 'ball-rolling-game', relativePath);
+        } else if (req.url.startsWith('/racing-game/')) {
+            // 레이싱 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/racing-game/'.length);
+            filePath = path.join(__dirname, 'racing-game', relativePath);
         } else if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/assets/')) {
             // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (기존 호환성 유지)
             filePath = path.join(__dirname, 'spaceship-game', req.url.substring(1));
