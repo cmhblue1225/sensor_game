@@ -140,6 +140,25 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        #minimapContainer {
+            position: absolute;
+            top: 150px;
+            left: 20px;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        #minimapCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
         .game-over h2 {
             color: #ffaf42;
             margin-bottom: 20px;
@@ -188,6 +207,10 @@
         </div>
 
         <canvas id="gameCanvas" width="1000" height="700"></canvas>
+
+        <div id="minimapContainer">
+            <canvas id="minimapCanvas" width="200" height="200"></canvas>
+        </div>
 
         <div class="ui-overlay">
             <div class="top-ui">

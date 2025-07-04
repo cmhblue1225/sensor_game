@@ -9,6 +9,10 @@ class GameEngine {
         this.width = canvas.width;
         this.height = canvas.height;
 
+        this.minimapCanvas = document.getElementById('minimapCanvas');
+        this.minimapCtx = this.minimapCanvas.getContext('2d');
+        this.minimapSize = { width: this.minimapCanvas.width, height: this.minimapCanvas.height };
+
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = 'high';
 
@@ -55,6 +59,8 @@ class GameEngine {
         }
 
         this.ctx.restore();
+
+        this.drawMinimap(gameState);
     }
 
     clear() {
@@ -148,5 +154,51 @@ class GameEngine {
         this.canvas.height = height;
         this.width = width;
         this.height = height;
+    }
+
+    drawMinimap(gameState) {
+        const miniCtx = this.minimapCtx;
+        const miniCanvas = this.minimapCanvas;
+        const worldWidth = 3000; // main.js에서 정의된 worldSize.width
+        const worldHeight = 2000; // main.js에서 정의된 worldSize.height
+
+        miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+        miniCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        miniCtx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
+
+        // 트랙 그리기
+        if (gameState.track && gameState.track.path && gameState.track.path.length > 1) {
+            const scaleX = miniCanvas.width / worldWidth;
+            const scaleY = miniCanvas.height / worldHeight;
+
+            miniCtx.save();
+            miniCtx.scale(scaleX, scaleY);
+            miniCtx.strokeStyle = '#888';
+            miniCtx.lineWidth = gameState.track.width;
+            miniCtx.lineCap = 'round';
+            miniCtx.lineJoin = 'round';
+
+            miniCtx.beginPath();
+            miniCtx.moveTo(gameState.track.path[0].x, gameState.track.path[0].y);
+            for (let i = 1; i < gameState.track.path.length; i++) {
+                miniCtx.lineTo(gameState.track.path[i].x, gameState.track.path[i].y);
+            }
+            miniCtx.closePath();
+            miniCtx.stroke();
+            miniCtx.restore();
+        }
+
+        // 자동차 그리기
+        if (gameState.cars) {
+            const scaleX = miniCanvas.width / worldWidth;
+            const scaleY = miniCanvas.height / worldHeight;
+
+            gameState.cars.forEach(car => {
+                miniCtx.beginPath();
+                miniCtx.arc(car.x * scaleX, car.y * scaleY, 5, 0, Math.PI * 2);
+                miniCtx.fillStyle = car.isPlayer ? 'red' : 'blue';
+                miniCtx.fill();
+            });
+        }
     }
 }
