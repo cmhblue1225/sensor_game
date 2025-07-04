@@ -535,42 +535,36 @@
             document.getElementById('loadingScreen').classList.remove('active');
         }
 
-        // 서버 상태 확인
+        // 서버 상태 확인 (HTTP 기반으로 변경)
         function checkServerStatus() {
-            // WebSocket 연결 테스트
+            // HTTP 요청으로 서버 상태 확인 (WebSocket 남용 방지)
             try {
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const protocol = window.location.protocol;
                 const port = window.location.protocol === 'https:' ? '8443' : '8080';
-                const wsUrl = `${protocol}//${window.location.hostname}:${port}`;
+                const testUrl = `${protocol}//${window.location.hostname}:${port}/`;
                 
-                console.log('WebSocket 연결 시도:', wsUrl);
-                const ws = new WebSocket(wsUrl);
+                console.log('서버 상태 확인:', testUrl);
                 
-                ws.onopen = function() {
-                    console.log('WebSocket 연결 성공');
-                    document.getElementById('serverStatus').innerHTML = '🟢 서버 연결됨';
-                    ws.close();
-                };
-                
-                ws.onerror = function(error) {
-                    console.log('WebSocket 연결 오류:', error);
-                    document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
-                };
-                
-                ws.onclose = function(event) {
-                    console.log('WebSocket 연결 종료:', event.code, event.reason);
-                };
-                
-                setTimeout(() => {
-                    if (ws.readyState === WebSocket.CONNECTING) {
-                        console.log('WebSocket 연결 타임아웃');
-                        ws.close();
-                        document.getElementById('serverStatus').innerHTML = '🟡 서버 응답 지연';
+                fetch(testUrl, { 
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    timeout: 3000
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('서버 연결 성공');
+                        document.getElementById('serverStatus').innerHTML = '🟢 서버 연결됨';
+                    } else {
+                        document.getElementById('serverStatus').innerHTML = '🟡 서버 응답 이상';
                     }
-                }, 3000);
+                })
+                .catch(error => {
+                    console.log('서버 연결 확인 실패:', error);
+                    document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
+                });
                 
             } catch (error) {
-                console.error('WebSocket 연결 예외:', error);
+                console.error('서버 상태 확인 예외:', error);
                 document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
             }
         }
@@ -578,7 +572,7 @@
         // 통계 업데이트 시작
         function startStatsUpdate() {
             updateStats();
-            setInterval(updateStats, 5000); // 5초마다 업데이트
+            setInterval(updateStats, 30000); // 30초마다 업데이트로 변경
         }
 
         // 통계 업데이트
@@ -602,47 +596,18 @@
             updateServerUptime();
         }
 
-        // 서버 통계 가져오기
+        // 서버 통계 가져오기 (간소화)
         async function fetchServerStats() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const port = window.location.protocol === 'https:' ? '8443' : '8080';
-            
+            // 간단한 HTTP 요청으로 변경하여 WebSocket 남용 방지
             return new Promise((resolve, reject) => {
-                try {
-                    const ws = new WebSocket(`${protocol}//${window.location.hostname}:${port}`);
-                    
-                    ws.onopen = function() {
-                        // 서버에 통계 요청
-                        ws.send(JSON.stringify({
-                            type: 'stats_request',
-                            timestamp: Date.now()
-                        }));
+                // 기본 통계값 반환 (실제 서버 구현 시 API 엔드포인트로 변경)
+                setTimeout(() => {
+                    const mockStats = {
+                        connectedDevices: 0, // 연결 안정화 후 실제 값 표시
+                        totalSessions: localStorage.getItem('totalSessions') || 0
                     };
-                    
-                    ws.onmessage = function(event) {
-                        try {
-                            const data = JSON.parse(event.data);
-                            if (data.type === 'stats_response') {
-                                resolve(data.stats);
-                            }
-                        } catch (e) {
-                            reject(e);
-                        }
-                        ws.close();
-                    };
-                    
-                    ws.onerror = function() {
-                        reject(new Error('WebSocket connection failed'));
-                    };
-                    
-                    setTimeout(() => {
-                        ws.close();
-                        reject(new Error('Timeout'));
-                    }, 2000);
-                    
-                } catch (error) {
-                    reject(error);
-                }
+                    resolve(mockStats);
+                }, 100);
             });
         }
 

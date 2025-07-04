@@ -16,6 +16,32 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: #f5f7fa;
             color: #333;
+            position: relative;
+        }
+
+        /* 메인으로 돌아가기 버튼 */
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 100;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-to-main:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .header {
@@ -270,6 +296,8 @@
     </style>
 </head>
 <body>
+    <!-- 메인으로 돌아가기 버튼 -->
+    <a href="/" class="back-to-main">🏠 메인으로</a>
     <div class="header">
         <div class="header-content">
             <h1>📊 센서 데이터 모니터링 대시보드</h1>

@@ -16,6 +16,32 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+
+        /* 메인으로 돌아가기 버튼 */
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 100;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-to-main:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .container {
@@ -194,6 +220,8 @@
     </style>
 </head>
 <body>
+    <!-- 메인으로 돌아가기 버튼 -->
+    <a href="/" class="back-to-main">🏠 메인으로</a>
     <div class="container">
         <h1>📱 센서 데이터 전송</h1>
         
