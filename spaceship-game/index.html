@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- 메인으로 돌아가기 버튼 -->
-    <a href="/" class="back-to-main">🏠 메인으로</a>
     <!-- 게임 로딩 화면 -->
     <div id="loadingScreen">
         <div class="loading-content">
@@ -29,6 +27,7 @@
                 <button id="startGameBtn" class="menu-btn">게임 시작</button>
                 <button id="instructionsBtn" class="menu-btn">조작법</button>
                 <button id="settingsBtn" class="menu-btn">설정</button>
+                <button id="backToHubBtn" class="menu-btn secondary" onclick="goToHub()">🏠 메인 허브로</button>
             </div>
             <div class="connection-status">
                 <span id="connectionIndicator">📡 센서 연결 대기중...</span>

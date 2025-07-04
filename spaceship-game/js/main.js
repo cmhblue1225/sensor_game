@@ -468,6 +468,11 @@ class SpaceshipGame {
     }
 }
 
+// 메인 허브로 이동 함수
+function goToHub() {
+    window.location.href = '/';
+}
+
 // 게임 인스턴스 생성 및 시작
 let game;
 
