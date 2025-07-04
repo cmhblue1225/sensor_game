@@ -14,6 +14,31 @@ body {
     -webkit-touch-callout: none;
 }
 
+/* 메인으로 돌아가기 버튼 */
+.back-to-main {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    z-index: 100;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.back-to-main:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
 /* 로딩 화면 */
 #loadingScreen {
     position: fixed;

@@ -122,6 +122,31 @@
             pointer-events: all;
         }
 
+        /* 메인으로 돌아가기 버튼 */
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 100;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-to-main:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
         .game-over h2 {
             color: #ff6b6b;
             margin-bottom: 20px;
@@ -191,6 +216,9 @@
 </head>
 <body>
     <div id="gameContainer">
+        <!-- 메인으로 돌아가기 버튼 -->
+        <a href="/" class="back-to-main">🏠 메인으로</a>
+        
         <!-- 로딩 화면 -->
         <div class="loading" id="loadingScreen">
             <h1>🎱 볼 굴리기</h1>
@@ -233,7 +261,7 @@
             <p>최종 점수: <span id="finalScore">0</span></p>
             <p>도달 레벨: <span id="finalLevel">1</span></p>
             <button class="restart-btn" onclick="restartGame()">다시 시작</button>
-            <button class="restart-btn" onclick="showMenu()">메인 메뉴</button>
+            <button class="restart-btn" onclick="goToMain()">🏠 메인으로</button>
         </div>
     </div>
 

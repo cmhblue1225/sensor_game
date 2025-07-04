@@ -539,25 +539,38 @@
         function checkServerStatus() {
             // WebSocket 연결 테스트
             try {
-                const ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 8080}`);
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const port = window.location.protocol === 'https:' ? '8443' : '8080';
+                const wsUrl = `${protocol}//${window.location.hostname}:${port}`;
+                
+                console.log('WebSocket 연결 시도:', wsUrl);
+                const ws = new WebSocket(wsUrl);
                 
                 ws.onopen = function() {
+                    console.log('WebSocket 연결 성공');
                     document.getElementById('serverStatus').innerHTML = '🟢 서버 연결됨';
                     ws.close();
                 };
                 
-                ws.onerror = function() {
+                ws.onerror = function(error) {
+                    console.log('WebSocket 연결 오류:', error);
                     document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
+                };
+                
+                ws.onclose = function(event) {
+                    console.log('WebSocket 연결 종료:', event.code, event.reason);
                 };
                 
                 setTimeout(() => {
                     if (ws.readyState === WebSocket.CONNECTING) {
+                        console.log('WebSocket 연결 타임아웃');
                         ws.close();
                         document.getElementById('serverStatus').innerHTML = '🟡 서버 응답 지연';
                     }
                 }, 3000);
                 
             } catch (error) {
+                console.error('WebSocket 연결 예외:', error);
                 document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
             }
         }
@@ -570,15 +583,67 @@
 
         // 통계 업데이트
         function updateStats() {
-            // 시뮬레이션된 데이터 (실제로는 서버에서 가져와야 함)
-            const connectedDevices = Math.floor(Math.random() * 5);
-            const totalSessions = localStorage.getItem('totalSessions') || 0;
-            
-            document.getElementById('connectedDevices').textContent = connectedDevices;
-            document.getElementById('totalSessions').textContent = totalSessions;
+            // 실제 서버에서 통계 데이터를 가져오려고 시도
+            fetchServerStats()
+                .then(stats => {
+                    document.getElementById('connectedDevices').textContent = stats.connectedDevices || 0;
+                    document.getElementById('totalSessions').textContent = stats.totalSessions || localStorage.getItem('totalSessions') || 0;
+                })
+                .catch(() => {
+                    // 서버에서 데이터를 가져올 수 없는 경우 로컬 데이터 사용
+                    const connectedDevices = 0; // 연결 실패 시 0으로 표시
+                    const totalSessions = localStorage.getItem('totalSessions') || 0;
+                    
+                    document.getElementById('connectedDevices').textContent = connectedDevices;
+                    document.getElementById('totalSessions').textContent = totalSessions;
+                });
             
             // 서버 가동 시간 업데이트
             updateServerUptime();
+        }
+
+        // 서버 통계 가져오기
+        async function fetchServerStats() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const port = window.location.protocol === 'https:' ? '8443' : '8080';
+            
+            return new Promise((resolve, reject) => {
+                try {
+                    const ws = new WebSocket(`${protocol}//${window.location.hostname}:${port}`);
+                    
+                    ws.onopen = function() {
+                        // 서버에 통계 요청
+                        ws.send(JSON.stringify({
+                            type: 'stats_request',
+                            timestamp: Date.now()
+                        }));
+                    };
+                    
+                    ws.onmessage = function(event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.type === 'stats_response') {
+                                resolve(data.stats);
+                            }
+                        } catch (e) {
+                            reject(e);
+                        }
+                        ws.close();
+                    };
+                    
+                    ws.onerror = function() {
+                        reject(new Error('WebSocket connection failed'));
+                    };
+                    
+                    setTimeout(() => {
+                        ws.close();
+                        reject(new Error('Timeout'));
+                    }, 2000);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
         }
 
         // 서버 가동 시간 업데이트

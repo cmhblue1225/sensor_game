@@ -176,6 +176,10 @@ function setupWebSocketHandlers(wsServer) {
                 case 'leave':
                     handleChatLeave(clientId, data);
                     break;
+                    
+                case 'stats_request':
+                    handleStatsRequest(clientId, data);
+                    break;
             }
         } catch (error) {
             console.error('메시지 처리 오류:', error);
@@ -335,6 +339,32 @@ function handleChatLeave(clientId, data) {
             name: client.name,
             timestamp: new Date().toISOString()
         }, clientId);
+    }
+}
+
+function handleStatsRequest(clientId, data) {
+    const client = clients.get(clientId);
+    if (!client) return;
+    
+    // 서버 통계 수집
+    const stats = {
+        connectedDevices: devices.size,
+        totalDashboards: dashboards.size,
+        totalClients: clients.size,
+        totalMessages: totalMessages,
+        uptime: Date.now() - serverStartTime,
+        timestamp: Date.now()
+    };
+    
+    // 클라이언트에게 통계 응답
+    try {
+        client.ws.send(JSON.stringify({
+            type: 'stats_response',
+            stats: stats,
+            timestamp: Date.now()
+        }));
+    } catch (error) {
+        console.error(`통계 응답 전송 실패 (클라이언트 #${clientId}):`, error);
     }
 }
 

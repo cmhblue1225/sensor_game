@@ -492,6 +492,11 @@ function showMenu() {
     }
 }
 
+function goToMain() {
+    // 메인 페이지로 이동
+    window.location.href = '/';
+}
+
 // DOM 로드 완료 후 게임 시작
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM 로드 완료, 볼 굴리기 게임 초기화 시작');
