@@ -40,11 +40,11 @@ class SensorManager {
         };
         this.historySize = 5;
         
-        // 감도 설정 (적당히 조정)
+        // 감도 설정 (민감도 크게 감소)
         this.sensitivity = {
-            gyro: 0.03,   // 0.005 → 0.03 (6배 증가)
-            accel: 0.08,  // 0.02 → 0.08 (4배 증가)
-            orient: 0.01  // 0.002 → 0.01 (5배 증가)
+            gyro: 0.008,   // 0.03 → 0.008 (훨씬 낮춤)
+            accel: 0.025,  // 0.08 → 0.025 (1/3로 감소)
+            orient: 0.003  // 0.01 → 0.003 (1/3로 감소)
         };
         
         this.callbacks = [];
@@ -175,9 +175,9 @@ class SensorManager {
         pitch = this.filterExtreme(pitch);
         yaw = this.filterExtreme(yaw);
         
-        this.gameInput.roll = this.clamp(roll, -0.8, 0.8); // 범위 확대
-        this.gameInput.pitch = this.clamp(pitch, -0.8, 0.8);
-        this.gameInput.yaw = this.clamp(yaw, -0.8, 0.8);
+        this.gameInput.roll = this.clamp(roll, -0.3, 0.3); // 범위 축소
+        this.gameInput.pitch = this.clamp(pitch, -0.3, 0.3);
+        this.gameInput.yaw = this.clamp(yaw, -0.3, 0.3);
         
         // 가속도계 → 추진력 (적당히 제한적)
         let thrust = this.sensorData.accelerometer.z * this.sensitivity.accel;
@@ -189,22 +189,22 @@ class SensorManager {
         sideThrust = this.filterExtreme(sideThrust);
         upThrust = this.filterExtreme(upThrust);
         
-        this.gameInput.thrust = this.clamp(thrust, -0.8, 0.8); // 범위 확대
-        this.gameInput.sideThrust = this.clamp(sideThrust, -0.8, 0.8);
-        this.gameInput.upThrust = this.clamp(upThrust, -0.8, 0.8);
+        this.gameInput.thrust = this.clamp(thrust, -0.5, 0.5); // 범위 축소
+        this.gameInput.sideThrust = this.clamp(sideThrust, -0.5, 0.5);
+        this.gameInput.upThrust = this.clamp(upThrust, -0.5, 0.5);
         
         // 방향 센서로 미세 조정 (다시 활성화)
         const orientAdjust = 0.01;
         this.gameInput.roll += this.sensorData.orientation.gamma * orientAdjust;
         this.gameInput.pitch += this.sensorData.orientation.beta * orientAdjust;
         
-        // 최종 범위 재조정
-        this.gameInput.roll = this.clamp(this.gameInput.roll, -0.8, 0.8);
-        this.gameInput.pitch = this.clamp(this.gameInput.pitch, -0.8, 0.8);
-        this.gameInput.yaw = this.clamp(this.gameInput.yaw, -0.8, 0.8);
-        this.gameInput.thrust = this.clamp(this.gameInput.thrust, -0.8, 0.8);
-        this.gameInput.sideThrust = this.clamp(this.gameInput.sideThrust, -0.8, 0.8);
-        this.gameInput.upThrust = this.clamp(this.gameInput.upThrust, -0.8, 0.8);
+        // 최종 범위 재조정 (더 보수적으로)
+        this.gameInput.roll = this.clamp(this.gameInput.roll, -0.3, 0.3);
+        this.gameInput.pitch = this.clamp(this.gameInput.pitch, -0.3, 0.3);
+        this.gameInput.yaw = this.clamp(this.gameInput.yaw, -0.3, 0.3);
+        this.gameInput.thrust = this.clamp(this.gameInput.thrust, -0.5, 0.5);
+        this.gameInput.sideThrust = this.clamp(this.gameInput.sideThrust, -0.5, 0.5);
+        this.gameInput.upThrust = this.clamp(this.gameInput.upThrust, -0.5, 0.5);
     }
     
     /**

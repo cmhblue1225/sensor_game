@@ -10,10 +10,10 @@ class GameEngine {
         this.renderer = null;
         this.clock = new THREE.Clock();
         
-        // 카메라 설정
-        this.cameraOffset = new THREE.Vector3(0, 5, 10);
-        this.cameraLookOffset = new THREE.Vector3(0, 0, -20);
-        this.cameraSpeed = 0.05;
+        // 카메라 설정 (우주선 추적 개선)
+        this.cameraOffset = new THREE.Vector3(0, 8, 15);    // 더 높고 뒤로
+        this.cameraLookOffset = new THREE.Vector3(0, 0, -5); // 더 가까이 보기
+        this.cameraSpeed = 0.08;                             // 빠른 추적
         
         // 환경 설정
         this.ambientLight = null;
@@ -89,7 +89,7 @@ class GameEngine {
     createCamera() {
         const aspect = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-        this.camera.position.set(0, 0, 5); // 테스트 큐브를 더 잘 보기 위해 가까이 이동
+        this.camera.position.set(0, 8, 15); // 우주선을 잘 보는 초기 위치
         console.log('카메라 위치 설정:', this.camera.position);
     }
     
@@ -484,7 +484,7 @@ class GameEngine {
         });
         
         this.testCube = new THREE.Mesh(geometry, material);
-        this.testCube.position.set(0, 0, -5); // 카메라에 더 가까이 배치
+        this.testCube.position.set(0, 0, 0); // 중앙 배치
         this.testCube.castShadow = true;
         this.testCube.receiveShadow = true;
         

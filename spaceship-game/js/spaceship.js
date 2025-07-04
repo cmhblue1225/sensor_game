@@ -17,13 +17,13 @@ class Spaceship {
         this.angularVelocity = new THREE.Vector3(0, 0, 0);
         this.quaternion = new THREE.Quaternion();
         
-        // 우주선 속성 (반응성 향상)
-        this.maxSpeed = 50;
-        this.thrustPower = 40;        // 25 → 40 (추진력 증가)
-        this.maneuverPower = 25;      // 15 → 25 (조종력 증가)
-        this.rotationSpeed = 4;       // 2 → 4 (회전 속도 증가)
-        this.drag = 0.98;
-        this.angularDrag = 0.92;      // 0.95 → 0.92 (각속도 감쇠 감소로 더 반응적)
+        // 우주선 속성 (안정성 향상)
+        this.maxSpeed = 30;           // 50 → 30 (최대 속도 감소)
+        this.thrustPower = 15;        // 40 → 15 (추진력 감소)
+        this.maneuverPower = 10;      // 25 → 10 (조종력 감소)
+        this.rotationSpeed = 1.5;     // 4 → 1.5 (회전 속도 감소)
+        this.drag = 0.95;             // 0.98 → 0.95 (더 강한 드래그)
+        this.angularDrag = 0.88;      // 0.92 → 0.88 (각속도 감쇠 증가)
         
         // 연료 시스템
         this.fuel = 100;
@@ -55,8 +55,8 @@ class Spaceship {
     createSpaceship() {
         const group = new THREE.Group();
         
-        // 메인 선체
-        const hullGeometry = new THREE.ConeGeometry(1, 6, 8);
+        // 메인 선체 (크기 증가)
+        const hullGeometry = new THREE.ConeGeometry(2, 10, 8);
         const hullMaterial = new THREE.MeshPhongMaterial({
             color: 0x666666,
             shininess: 100,
@@ -68,8 +68,8 @@ class Spaceship {
         hull.receiveShadow = true;
         group.add(hull);
         
-        // 콕핏
-        const cockpitGeometry = new THREE.SphereGeometry(0.7, 16, 16);
+        // 콕핏 (크기 증가)
+        const cockpitGeometry = new THREE.SphereGeometry(1.4, 16, 16);
         const cockpitMaterial = new THREE.MeshPhongMaterial({
             color: 0x0088ff,
             transparent: true,
@@ -77,7 +77,7 @@ class Spaceship {
             shininess: 100
         });
         const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
-        cockpit.position.z = 2;
+        cockpit.position.z = 4;
         cockpit.scale.z = 0.6;
         cockpit.castShadow = true;
         group.add(cockpit);
@@ -105,7 +105,7 @@ class Spaceship {
      * 우주선 날개 생성
      */
     createWings(group) {
-        const wingGeometry = new THREE.BoxGeometry(4, 0.2, 2);
+        const wingGeometry = new THREE.BoxGeometry(6, 0.3, 3);
         const wingMaterial = new THREE.MeshPhongMaterial({
             color: 0x888888,
             shininess: 80
@@ -113,14 +113,14 @@ class Spaceship {
         
         // 좌측 날개
         const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
-        leftWing.position.set(-1.5, 0, -0.5);
+        leftWing.position.set(-2.5, 0, -1);
         leftWing.rotation.z = 0.1;
         leftWing.castShadow = true;
         group.add(leftWing);
         
         // 우측 날개
         const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
-        rightWing.position.set(1.5, 0, -0.5);
+        rightWing.position.set(2.5, 0, -1);
         rightWing.rotation.z = -0.1;
         rightWing.castShadow = true;
         group.add(rightWing);
@@ -140,7 +140,7 @@ class Spaceship {
             color: 0xff4444 // 밝은 빨간색
         });
         const leftLight = new THREE.Mesh(lightGeometry, leftLightMaterial);
-        leftLight.position.set(-3.5, 0, -0.5);
+        leftLight.position.set(-5, 0, -1);
         group.add(leftLight);
         
         // 우측 라이트 (초록색)
@@ -148,7 +148,7 @@ class Spaceship {
             color: 0x44ff44 // 밝은 초록색
         });
         const rightLight = new THREE.Mesh(lightGeometry, rightLightMaterial);
-        rightLight.position.set(3.5, 0, -0.5);
+        rightLight.position.set(5, 0, -1);
         group.add(rightLight);
         
         this.wingLights = [leftLight, rightLight];
@@ -158,7 +158,7 @@ class Spaceship {
      * 엔진 노즐 생성
      */
     createEngineNozzles(group) {
-        const nozzleGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1.5, 8);
+        const nozzleGeometry = new THREE.CylinderGeometry(0.6, 1.0, 3, 8);
         const nozzleMaterial = new THREE.MeshPhongMaterial({
             color: 0x333333,
             shininess: 120
@@ -166,19 +166,19 @@ class Spaceship {
         
         // 메인 엔진 노즐
         const mainNozzle = new THREE.Mesh(nozzleGeometry, nozzleMaterial);
-        mainNozzle.position.z = -3.5;
+        mainNozzle.position.z = -7;
         mainNozzle.rotation.x = Math.PI / 2;
         mainNozzle.castShadow = true;
         group.add(mainNozzle);
         
         // 측면 스러스터 노즐들
-        const smallNozzleGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.8, 6);
+        const smallNozzleGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1.6, 6);
         
         const positions = [
-            [-1.2, 0.3, -1],   // 좌상
-            [1.2, 0.3, -1],    // 우상
-            [-1.2, -0.3, -1],  // 좌하
-            [1.2, -0.3, -1]    // 우하
+            [-2, 0.5, -2],     // 좌상
+            [2, 0.5, -2],      // 우상
+            [-2, -0.5, -2],    // 좌하
+            [2, -0.5, -2]      // 우하
         ];
         
         this.thrusterNozzles = [];
@@ -307,14 +307,14 @@ class Spaceship {
      */
     createThrusterEffects() {
         const thrusterPositions = [
-            [-1.2, 0.3, -1.8],   // 좌상
-            [1.2, 0.3, -1.8],    // 우상
-            [-1.2, -0.3, -1.8],  // 좌하
-            [1.2, -0.3, -1.8]    // 우하
+            [-2, 0.5, -3.5],     // 좌상
+            [2, 0.5, -3.5],      // 우상
+            [-2, -0.5, -3.5],    // 좌하
+            [2, -0.5, -3.5]      // 우하
         ];
         
         thrusterPositions.forEach((pos, index) => {
-            const flameGeometry = new THREE.ConeGeometry(0.2, 1, 6);
+            const flameGeometry = new THREE.ConeGeometry(0.4, 2, 6);
             const flameMaterial = new THREE.MeshBasicMaterial({
                 color: 0x00aaff,
                 transparent: true,
