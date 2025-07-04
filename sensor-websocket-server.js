@@ -413,13 +413,27 @@ function broadcastToGameClients(message) {
 
 function getLocalIPAddress() {
     const interfaces = os.networkInterfaces();
+    const candidates = [];
     for (const name of Object.keys(interfaces)) {
         for (const iface of interfaces[name]) {
             if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
+                candidates.push(iface.address);
             }
         }
     }
+
+    // Wi-Fi 또는 유선 LAN IP (일반적으로 192.168.x.x)를 우선적으로 찾습니다.
+    const preferredIP = candidates.find(ip => ip.startsWith('192.168.'));
+    if (preferredIP) {
+        return preferredIP;
+    }
+
+    // 적절한 IP를 찾지 못하면 첫 번째 후보 IP를 사용합니다.
+    if (candidates.length > 0) {
+        return candidates[0];
+    }
+
+    // 어떤 IP도 찾지 못하면 'localhost'를 반환합니다.
     return 'localhost';
 }
 
