@@ -10,7 +10,9 @@ function createRequestHandler() {
         let filePath = '';
         let contentType = 'text/html';
         
-        if (req.url === '/client.html' || req.url === '/') {
+        if (req.url === '/' || req.url === '/index.html') {
+            filePath = path.join(__dirname, 'index.html');
+        } else if (req.url === '/client.html') {
             filePath = path.join(__dirname, 'client.html');
         } else if (req.url === '/server.html') {
             filePath = path.join(__dirname, 'server.html');
@@ -20,6 +22,8 @@ function createRequestHandler() {
             filePath = path.join(__dirname, 'sensor-dashboard.html');
         } else if (req.url === '/dashboard') {
             filePath = path.join(__dirname, 'sensor-dashboard.html');
+        } else if (req.url === '/settings') {
+            filePath = path.join(__dirname, 'settings.html');
         } else if (req.url === '/game' || req.url === '/spaceship-game') {
             filePath = path.join(__dirname, 'spaceship-game', 'index.html');
         } else if (req.url === '/ball-game' || req.url === '/ball-rolling') {
@@ -394,7 +398,7 @@ const HTTPS_PORT = 8443;
 
 server.listen(PORT, '0.0.0.0', () => {
     const localIP = getLocalIPAddress();
-    console.log(`\n=== 센서 데이터 모니터링 서버 ===`);
+    console.log(`\n=== 센서 게임 플랫폼 서버 ===`);
     console.log(`HTTP 서버가 포트 ${PORT}에서 시작되었습니다`);
     
     if (httpsServer) {
@@ -402,6 +406,12 @@ server.listen(PORT, '0.0.0.0', () => {
             console.log(`HTTPS 서버가 포트 ${HTTPS_PORT}에서 시작되었습니다`);
         });
     }
+    
+    console.log(`\n🏠 메인 게임 플랫폼:`);
+    if (httpsServer) {
+        console.log(`   HTTPS: https://${localIP}:${HTTPS_PORT}/`);
+    }
+    console.log(`   HTTP: http://${localIP}:${PORT}/`);
     
     console.log(`\n📱 휴대폰 센서 클라이언트 (iOS 권한 지원):`);
     if (httpsServer) {

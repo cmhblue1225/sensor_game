@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 센서 게임 플랫폼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* 헤더 */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            gap: 40px;
+        }
+
+        /* 섹션 공통 스타일 */
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 게임 그리드 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .game-description {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .play-button:hover {
+            background: linear-gradient(45deg, #5dddd4, #54b09d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 설정/유틸리티 섹션 */
+        .utilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .utility-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .utility-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .utility-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .utility-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .utility-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 통계 섹션 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 푸터 */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: 40px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .utilities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 로딩 애니메이션 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 로딩 화면 -->
+    <div class="loading" id="loadingScreen">
+        <div>
+            <div class="spinner"></div>
+            <p style="margin-top: 20px;">게임을 로드하는 중...</p>
+        </div>
+    </div>
+
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>🎮 센서 게임 플랫폼</h1>
+        <p>모바일 센서를 활용한 혁신적인 게임 경험</p>
+        <div class="status-indicator" id="serverStatus">
+            🟢 서버 연결됨
+        </div>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="main-container">
+        <!-- 게임 섹션 -->
+        <div class="section">
+            <h2>🎯 게임 선택</h2>
+            <div class="games-grid" id="gamesGrid">
+                <!-- 게임 카드들이 동적으로 생성됩니다 -->
+            </div>
+        </div>
+
+        <!-- 설정 및 유틸리티 섹션 -->
+        <div class="section">
+            <h2>⚙️ 설정 및 도구</h2>
+            <div class="utilities-grid">
+                <div class="utility-card" onclick="openSensorDashboard()">
+                    <span class="utility-icon">📊</span>
+                    <div class="utility-title">센서 대시보드</div>
+                    <div class="utility-description">실시간 센서 데이터 모니터링</div>
+                </div>
+                
+                <div class="utility-card" onclick="openSensorClient()">
+                    <span class="utility-icon">📱</span>
+                    <div class="utility-title">센서 클라이언트</div>
+                    <div class="utility-description">모바일 센서 연결</div>
+                </div>
+                
+                <div class="utility-card" onclick="openSettings()">
+                    <span class="utility-icon">🔧</span>
+                    <div class="utility-title">시스템 설정</div>
+                    <div class="utility-description">게임 및 센서 설정</div>
+                </div>
+                
+                <div class="utility-card" onclick="viewStats()">
+                    <span class="utility-icon">📈</span>
+                    <div class="utility-title">통계 및 분석</div>
+                    <div class="utility-description">플레이 기록 및 센서 분석</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시스템 통계 -->
+        <div class="section">
+            <h2>📊 시스템 현황</h2>
+            <div class="stats-overview" id="statsOverview">
+                <div class="stat-card">
+                    <div class="stat-number" id="connectedDevices">0</div>
+                    <div class="stat-label">연결된 디바이스</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="availableGames">2</div>
+                    <div class="stat-label">사용 가능한 게임</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="serverUptime">00:00</div>
+                    <div class="stat-label">서버 가동 시간</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSessions">0</div>
+                    <div class="stat-label">총 게임 세션</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="footer">
+        <p>Made with ❤️ using Web Technologies and Mobile Sensors</p>
+        <p>© 2024 센서 게임 플랫폼. 모든 권리 보유.</p>
+    </div>
+
+    <script>
+        // 게임 데이터 정의
+        const games = [
+            {
+                id: 'ball-rolling',
+                title: '볼 굴리기',
+                icon: '🎱',
+                description: '센서를 이용해 공을 굴려 목표지점에 도달하세요. 10개의 흥미진진한 레벨이 기다립니다.',
+                url: '/ball-game',
+                difficulty: '쉬움 ~ 어려움',
+                levels: '10 레벨',
+                type: '2D 물리',
+                featured: true
+            },
+            {
+                id: 'spaceship',
+                title: '3D 우주선',
+                icon: '🚀',
+                description: '3차원 우주공간에서 센서로 우주선을 조종하며 소행성을 피해 항해하세요.',
+                url: '/game',
+                difficulty: '중간',
+                levels: '무한',
+                type: '3D 액션',
+                featured: true
+            }
+        ];
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            renderGames();
+            checkServerStatus();
+            startStatsUpdate();
+        });
+
+        // 게임 카드 렌더링
+        function renderGames() {
+            const gamesGrid = document.getElementById('gamesGrid');
+            gamesGrid.innerHTML = '';
+
+            games.forEach(game => {
+                const gameCard = createGameCard(game);
+                gamesGrid.appendChild(gameCard);
+            });
+        }
+
+        // 게임 카드 생성
+        function createGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.onclick = () => playGame(game);
+
+            card.innerHTML = `
+                <span class="game-icon">${game.icon}</span>
+                <div class="game-title">${game.title}</div>
+                <div class="game-description">${game.description}</div>
+                <div class="game-stats">
+                    <div class="stat">
+                        <div>🎯 ${game.difficulty}</div>
+                    </div>
+                    <div class="stat">
+                        <div>📊 ${game.levels}</div>
+                    </div>
+                    <div class="stat">
+                        <div>🎮 ${game.type}</div>
+                    </div>
+                </div>
+                <button class="play-button" onclick="event.stopPropagation(); playGame('${game.id}')">
+                    게임 시작
+                </button>
+            `;
+
+            return card;
+        }
+
+        // 게임 시작
+        function playGame(gameId) {
+            const game = typeof gameId === 'object' ? gameId : games.find(g => g.id === gameId);
+            if (!game) return;
+
+            showLoading();
+            
+            // 게임 세션 카운트 증가
+            incrementGameSessions();
+            
+            setTimeout(() => {
+                window.location.href = game.url;
+            }, 1000);
+        }
+
+        // 센서 대시보드 열기
+        function openSensorDashboard() {
+            showLoading();
+            setTimeout(() => {
+                window.location.href = '/sensor-dashboard.html';
+            }, 500);
+        }
+
+        // 센서 클라이언트 열기
+        function openSensorClient() {
+            showLoading();
+            setTimeout(() => {
+                window.location.href = '/sensor-client.html';
+            }, 500);
+        }
+
+        // 설정 페이지 열기
+        function openSettings() {
+            showLoading();
+            setTimeout(() => {
+                window.location.href = '/settings';
+            }, 500);
+        }
+
+        // 통계 페이지 열기
+        function viewStats() {
+            alert('통계 페이지는 곧 추가될 예정입니다!');
+        }
+
+        // 로딩 화면 표시/숨김
+        function showLoading() {
+            document.getElementById('loadingScreen').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingScreen').classList.remove('active');
+        }
+
+        // 서버 상태 확인
+        function checkServerStatus() {
+            // WebSocket 연결 테스트
+            try {
+                const ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 8080}`);
+                
+                ws.onopen = function() {
+                    document.getElementById('serverStatus').innerHTML = '🟢 서버 연결됨';
+                    ws.close();
+                };
+                
+                ws.onerror = function() {
+                    document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
+                };
+                
+                setTimeout(() => {
+                    if (ws.readyState === WebSocket.CONNECTING) {
+                        ws.close();
+                        document.getElementById('serverStatus').innerHTML = '🟡 서버 응답 지연';
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                document.getElementById('serverStatus').innerHTML = '🔴 서버 연결 실패';
+            }
+        }
+
+        // 통계 업데이트 시작
+        function startStatsUpdate() {
+            updateStats();
+            setInterval(updateStats, 5000); // 5초마다 업데이트
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            // 시뮬레이션된 데이터 (실제로는 서버에서 가져와야 함)
+            const connectedDevices = Math.floor(Math.random() * 5);
+            const totalSessions = localStorage.getItem('totalSessions') || 0;
+            
+            document.getElementById('connectedDevices').textContent = connectedDevices;
+            document.getElementById('totalSessions').textContent = totalSessions;
+            
+            // 서버 가동 시간 업데이트
+            updateServerUptime();
+        }
+
+        // 서버 가동 시간 업데이트
+        function updateServerUptime() {
+            const startTime = localStorage.getItem('serverStartTime') || Date.now();
+            localStorage.setItem('serverStartTime', startTime);
+            
+            const uptime = Date.now() - parseInt(startTime);
+            const hours = Math.floor(uptime / (1000 * 60 * 60));
+            const minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
+            
+            document.getElementById('serverUptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        // 게임 세션 카운트 증가
+        function incrementGameSessions() {
+            const currentSessions = parseInt(localStorage.getItem('totalSessions') || 0);
+            localStorage.setItem('totalSessions', currentSessions + 1);
+        }
+    </script>
+</body>
+</html>
