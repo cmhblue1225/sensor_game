@@ -374,12 +374,23 @@ class Spaceship {
      * 물리 시뮬레이션 업데이트
      */
     updatePhysics(deltaTime, gameInput) {
-        // 각속도 업데이트 (자이로스코프 입력)
+        // 센서 입력값 안전성 검사
+        const safePitch = this.filterValue(gameInput.pitch) || 0;
+        const safeYaw = this.filterValue(gameInput.yaw) || 0;
+        const safeRoll = this.filterValue(gameInput.roll) || 0;
+        
+        // 각속도 업데이트 (자이로스코프 입력) - 매우 제한적으로
         if (this.fuel > 0) {
-            this.angularVelocity.x += gameInput.pitch * this.rotationSpeed * deltaTime;
-            this.angularVelocity.y += gameInput.yaw * this.rotationSpeed * deltaTime;
-            this.angularVelocity.z += gameInput.roll * this.rotationSpeed * deltaTime;
+            this.angularVelocity.x += safePitch * this.rotationSpeed * deltaTime;
+            this.angularVelocity.y += safeYaw * this.rotationSpeed * deltaTime;
+            this.angularVelocity.z += safeRoll * this.rotationSpeed * deltaTime;
         }
+        
+        // 각속도 제한 (너무 빠른 회전 방지)
+        const maxAngularVelocity = 2.0;
+        this.angularVelocity.x = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.x));
+        this.angularVelocity.y = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.y));
+        this.angularVelocity.z = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.z));
         
         // 각속도 감쇠
         this.angularVelocity.multiplyScalar(this.angularDrag);
@@ -389,16 +400,27 @@ class Spaceship {
         this.rotation.y += this.angularVelocity.y * deltaTime;
         this.rotation.z += this.angularVelocity.z * deltaTime;
         
+        // 회전각 제한 (무한 회전 방지)
+        this.rotation.x = this.rotation.x % (Math.PI * 2);
+        this.rotation.y = this.rotation.y % (Math.PI * 2);
+        this.rotation.z = this.rotation.z % (Math.PI * 2);
+        
         // 쿼터니언 업데이트
         this.quaternion.setFromEuler(this.rotation);
         
         // 추진력 계산 (가속도계 입력)
         if (this.fuel > 0) {
             const localAcceleration = new THREE.Vector3(
-                gameInput.sideThrust * this.maneuverPower,
-                gameInput.upThrust * this.maneuverPower,
-                gameInput.thrust * this.thrustPower
+                (this.filterValue(gameInput.sideThrust) || 0) * this.maneuverPower,
+                (this.filterValue(gameInput.upThrust) || 0) * this.maneuverPower,
+                (this.filterValue(gameInput.thrust) || 0) * this.thrustPower
             );
+            
+            // 추진력 제한 (너무 강한 가속 방지)
+            const maxAcceleration = 20;
+            if (localAcceleration.length() > maxAcceleration) {
+                localAcceleration.normalize().multiplyScalar(maxAcceleration);
+            }
             
             // 우주선 방향으로 추진력 변환
             const worldAcceleration = localAcceleration.clone();
@@ -423,8 +445,20 @@ class Spaceship {
         // 위치 업데이트
         this.position.add(this.velocity.clone().multiplyScalar(deltaTime));
         
-        // 경계 확인 (게임 영역 제한)
-        const boundary = 200;
+        // 위치 유효성 검사 (NaN 방지)
+        if (!isFinite(this.position.x) || !isFinite(this.position.y) || !isFinite(this.position.z)) {
+            console.warn('우주선 위치가 비정상적입니다. 초기화합니다.');
+            this.position.set(0, 0, 0);
+            this.velocity.set(0, 0, 0);
+            this.acceleration.set(0, 0, 0);
+            this.angularVelocity.set(0, 0, 0);
+            this.rotation.set(0, 0, 0);
+            this.quaternion.set(0, 0, 0, 1);
+            return;
+        }
+        
+        // 경계 확인 (게임 영역 제한) - 더 작은 경계로 안전하게
+        const boundary = 100;
         if (Math.abs(this.position.x) > boundary) {
             this.position.x = Math.sign(this.position.x) * boundary;
             this.velocity.x *= -0.5;

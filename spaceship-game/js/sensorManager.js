@@ -47,6 +47,10 @@ class SensorManager {
             orient: 0.003  // 0.01 → 0.003 (1/3로 감소)
         };
         
+        // 센서 안정화 변수
+        this.isStabilized = false;
+        this.stabilizationCounter = 0;
+        
         this.callbacks = [];
         this.connectToServer();
     }
@@ -72,6 +76,10 @@ class SensorManager {
             this.socket.onopen = () => {
                 this.isConnected = true;
                 console.log('게임 센서 연결 성공');
+                
+                // 센서 안정화 리셋
+                this.isStabilized = false;
+                this.stabilizationCounter = 0;
                 
                 // 게임 클라이언트로 등록
                 this.socket.send(JSON.stringify({
@@ -163,6 +171,20 @@ class SensorManager {
         // 센서 데이터 유효성 검사
         if (!this.sensorData.gyroscope || !this.sensorData.accelerometer || !this.sensorData.orientation) {
             return;
+        }
+        
+        // 초기화 시 잠깐 대기 (센서 안정화)
+        if (!this.isStabilized) {
+            this.stabilizationCounter = (this.stabilizationCounter || 0) + 1;
+            if (this.stabilizationCounter < 30) { // 30프레임 대기 (약 0.5초)
+                // 안전한 기본값 사용
+                this.gameInput = {
+                    roll: 0, pitch: 0, yaw: 0,
+                    thrust: 0, sideThrust: 0, upThrust: 0
+                };
+                return;
+            }
+            this.isStabilized = true;
         }
         
         // 자이로스코프 → 회전 속도 (매우 제한적)
