@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 서버</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.offline {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .status.online {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 2px 0;
+        }
+        .log-entry.connect {
+            color: #2e7d32;
+        }
+        .log-entry.disconnect {
+            color: #c62828;
+        }
+        .log-entry.message {
+            color: #1976d2;
+        }
+        .clients {
+            margin-top: 20px;
+        }
+        .client-list {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>채팅 서버 관리</h1>
+        
+        <div class="status offline" id="serverStatus">
+            서버 상태: 오프라인
+        </div>
+        
+        <div class="controls">
+            <button id="startButton" onclick="startServer()">서버 시작</button>
+            <button id="stopButton" onclick="stopServer()" disabled>서버 중지</button>
+            <button onclick="clearLog()">로그 지우기</button>
+        </div>
+        
+        <div class="log" id="serverLog"></div>
+        
+        <div class="clients">
+            <h3>연결된 클라이언트 (<span id="clientCount">0</span>)</h3>
+            <div class="client-list" id="clientList">
+                연결된 클라이언트가 없습니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let server = null;
+        let clients = new Map();
+        let clientIdCounter = 0;
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('serverLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateClientList() {
+            const clientList = document.getElementById('clientList');
+            const clientCount = document.getElementById('clientCount');
+            
+            clientCount.textContent = clients.size;
+            
+            if (clients.size === 0) {
+                clientList.textContent = '연결된 클라이언트가 없습니다.';
+            } else {
+                clientList.innerHTML = '';
+                clients.forEach((client, id) => {
+                    const clientDiv = document.createElement('div');
+                    clientDiv.textContent = `클라이언트 #${id} (${client.ip})`;
+                    clientList.appendChild(clientDiv);
+                });
+            }
+        }
+
+        function startServer() {
+            try {
+                server = new WebSocket('ws://localhost:8080');
+                
+                server.onopen = function() {
+                    addLog('WebSocket 서버가 시작되었습니다 (포트: 8080)', 'connect');
+                    document.getElementById('serverStatus').textContent = '서버 상태: 온라인';
+                    document.getElementById('serverStatus').className = 'status online';
+                    document.getElementById('startButton').disabled = true;
+                    document.getElementById('stopButton').disabled = false;
+                };
+                
+                server.onclose = function() {
+                    addLog('WebSocket 서버가 중지되었습니다', 'disconnect');
+                    document.getElementById('serverStatus').textContent = '서버 상태: 오프라인';
+                    document.getElementById('serverStatus').className = 'status offline';
+                    document.getElementById('startButton').disabled = false;
+                    document.getElementById('stopButton').disabled = true;
+                    clients.clear();
+                    updateClientList();
+                };
+                
+                server.onerror = function(error) {
+                    addLog('서버 오류: ' + error.message, 'disconnect');
+                };
+                
+            } catch (error) {
+                addLog('서버 시작 실패: 실제 WebSocket 서버를 별도로 실행해야 합니다.', 'disconnect');
+                simulateServer();
+            }
+        }
+
+        function simulateServer() {
+            addLog('시뮬레이션 모드로 서버를 시작합니다', 'connect');
+            document.getElementById('serverStatus').textContent = '서버 상태: 온라인 (시뮬레이션)';
+            document.getElementById('serverStatus').className = 'status online';
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('stopButton').disabled = false;
+            
+            setTimeout(() => {
+                simulateClientConnection();
+            }, 2000);
+        }
+
+        function simulateClientConnection() {
+            const clientId = ++clientIdCounter;
+            clients.set(clientId, {
+                ip: `192.168.1.${100 + clientId}`,
+                connectedAt: new Date()
+            });
+            
+            addLog(`클라이언트 #${clientId}가 연결되었습니다`, 'connect');
+            updateClientList();
+            
+            setTimeout(() => {
+                const message = `안녕하세요! 클라이언트 #${clientId}입니다.`;
+                addLog(`클라이언트 #${clientId}: ${message}`, 'message');
+            }, 1000);
+        }
+
+        function stopServer() {
+            if (server) {
+                server.close();
+                server = null;
+            } else {
+                addLog('서버가 중지되었습니다', 'disconnect');
+                document.getElementById('serverStatus').textContent = '서버 상태: 오프라인';
+                document.getElementById('serverStatus').className = 'status offline';
+                document.getElementById('startButton').disabled = false;
+                document.getElementById('stopButton').disabled = true;
+                clients.clear();
+                updateClientList();
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('serverLog').innerHTML = '';
+        }
+
+        window.onload = function() {
+            addLog('서버 관리 페이지가 로드되었습니다');
+        };
+    </script>
+</body>
+</html>

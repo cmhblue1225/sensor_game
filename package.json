@@ -1,0 +1,17 @@
+{
+  "name": "chat-application",
+  "version": "1.0.0",
+  "description": "HTML 기반 채팅 애플리케이션",
+  "main": "websocket-server.js",
+  "scripts": {
+    "start": "node sensor-websocket-server.js",
+    "dev": "node sensor-websocket-server.js",
+    "chat": "node websocket-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "keywords": ["chat", "websocket", "html"],
+  "author": "",
+  "license": "MIT"
+}

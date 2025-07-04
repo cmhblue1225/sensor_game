@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>센서 데이터 모니터링 대시보드</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+            border-left: 4px solid #007aff;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #007aff;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .device-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .device-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .device-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sensor-group {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .sensor-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sensor-values {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .sensor-value {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .sensor-value-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .sensor-value-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .gps-values {
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .gps-value {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .gps-value-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .gps-value-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .no-devices {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .connection-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .connection-info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .connection-info p {
+            color: #1976d2;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sensor-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sensor-values {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📊 센서 데이터 모니터링 대시보드</h1>
+            <div class="server-status">
+                <div class="status-indicator"></div>
+                <span>서버 실행 중</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="connection-info">
+            <h3>📱 휴대폰 연결 방법</h3>
+            <p>1. 휴대폰에서 <strong id="sensorClientUrl">http://localhost:8080/sensor-client.html</strong> 접속</p>
+            <p>2. 센서 권한 허용</p>
+            <p>3. '센서 시작' 버튼 클릭</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="connectedDevices">0</div>
+                <div class="stat-label">연결된 기기</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalMessages">0</div>
+                <div class="stat-label">총 메시지</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="messagesPerSecond">0</div>
+                <div class="stat-label">초당 메시지</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="uptime">00:00:00</div>
+                <div class="stat-label">서버 업타임</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">실시간 센서 데이터</div>
+            <canvas id="sensorChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="device-section">
+            <div class="section-title">연결된 기기</div>
+            <div id="deviceList" class="no-devices">
+                연결된 기기가 없습니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let devices = new Map();
+        let totalMessages = 0;
+        let messagesThisSecond = 0;
+        let startTime = Date.now();
+        let chart = null;
+
+        // 차트 데이터
+        const chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: '가속도 X',
+                    data: [],
+                    borderColor: '#ff6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.1
+                },
+                {
+                    label: '가속도 Y',
+                    data: [],
+                    borderColor: '#36a2eb',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.1
+                },
+                {
+                    label: '가속도 Z',
+                    data: [],
+                    borderColor: '#ffcd56',
+                    backgroundColor: 'rgba(255, 205, 86, 0.1)',
+                    tension: 0.1
+                }
+            ]
+        };
+
+        function initChart() {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: '시간 (초)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '가속도 (m/s²)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        function connectToServer() {
+            try {
+                const serverHost = window.location.hostname || 'localhost';
+                let serverPort, protocol, httpProtocol;
+                
+                if (window.location.protocol === 'https:') {
+                    serverPort = window.location.port || '8443';
+                    protocol = 'wss';
+                    httpProtocol = 'https';
+                } else {
+                    serverPort = window.location.port || '8080';
+                    protocol = 'ws';
+                    httpProtocol = 'http';
+                }
+                
+                // URL 업데이트
+                document.getElementById('sensorClientUrl').textContent = 
+                    `${httpProtocol}://${serverHost}:${serverPort}/sensor-client.html`;
+                
+                socket = new WebSocket(`${protocol}://${serverHost}:${serverPort}`);
+                
+                socket.onopen = function() {
+                    console.log('대시보드 서버에 연결됨');
+                    
+                    // 대시보드 등록
+                    socket.send(JSON.stringify({
+                        type: 'dashboard_register',
+                        timestamp: Date.now()
+                    }));
+                };
+                
+                socket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleServerMessage(data);
+                    } catch (error) {
+                        console.error('메시지 처리 오류:', error);
+                    }
+                };
+                
+                socket.onclose = function() {
+                    console.log('서버 연결 끊김');
+                    setTimeout(connectToServer, 3000);
+                };
+                
+                socket.onerror = function(error) {
+                    console.error('WebSocket 오류:', error);
+                };
+                
+            } catch (error) {
+                console.error('연결 실패:', error);
+                setTimeout(connectToServer, 3000);
+            }
+        }
+
+        function handleServerMessage(data) {
+            switch(data.type) {
+                case 'sensor_data':
+                    updateSensorData(data);
+                    break;
+                case 'device_register':
+                    addDevice(data);
+                    break;
+                case 'device_disconnect':
+                    removeDevice(data.deviceId);
+                    break;
+                case 'server_stats':
+                    updateServerStats(data);
+                    break;
+            }
+        }
+
+        function updateSensorData(data) {
+            const deviceId = data.deviceId;
+            const sensorData = data.data;
+            
+            if (!devices.has(deviceId)) {
+                devices.set(deviceId, {
+                    id: deviceId,
+                    type: data.deviceType || 'Unknown',
+                    lastUpdate: Date.now(),
+                    sensorData: sensorData
+                });
+                updateDeviceList();
+            } else {
+                devices.get(deviceId).sensorData = sensorData;
+                devices.get(deviceId).lastUpdate = Date.now();
+            }
+            
+            updateDeviceDisplay(deviceId);
+            updateChart(sensorData);
+            
+            totalMessages++;
+            messagesThisSecond++;
+            updateStats();
+        }
+
+        function addDevice(data) {
+            if (!devices.has(data.deviceId)) {
+                devices.set(data.deviceId, {
+                    id: data.deviceId,
+                    type: data.deviceType || 'Unknown',
+                    lastUpdate: Date.now(),
+                    sensorData: null
+                });
+                updateDeviceList();
+                updateStats();
+            }
+        }
+
+        function removeDevice(deviceId) {
+            if (devices.has(deviceId)) {
+                devices.delete(deviceId);
+                updateDeviceList();
+                updateStats();
+            }
+        }
+
+        function updateDeviceList() {
+            const deviceList = document.getElementById('deviceList');
+            
+            if (devices.size === 0) {
+                deviceList.innerHTML = '<div class="no-devices">연결된 기기가 없습니다.</div>';
+                return;
+            }
+            
+            deviceList.innerHTML = '';
+            devices.forEach((device, deviceId) => {
+                const deviceCard = createDeviceCard(device);
+                deviceList.appendChild(deviceCard);
+            });
+        }
+
+        function createDeviceCard(device) {
+            const card = document.createElement('div');
+            card.className = 'device-card';
+            card.id = `device-${device.id}`;
+            
+            const timeSinceUpdate = Date.now() - device.lastUpdate;
+            const isActive = timeSinceUpdate < 5000;
+            
+            card.innerHTML = `
+                <div class="device-header">
+                    <div class="device-name">${device.type} (${device.id})</div>
+                    <div class="device-time">${isActive ? '실시간' : '비활성'}</div>
+                </div>
+                <div class="sensor-grid">
+                    <div class="sensor-group">
+                        <div class="sensor-group-title">🔄 자이로스코프</div>
+                        <div class="sensor-values">
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">X</div>
+                                <div class="sensor-value-number" id="gyro-x-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Y</div>
+                                <div class="sensor-value-number" id="gyro-y-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Z</div>
+                                <div class="sensor-value-number" id="gyro-z-${device.id}">0.0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sensor-group">
+                        <div class="sensor-group-title">⚡ 가속도계</div>
+                        <div class="sensor-values">
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">X</div>
+                                <div class="sensor-value-number" id="accel-x-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Y</div>
+                                <div class="sensor-value-number" id="accel-y-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Z</div>
+                                <div class="sensor-value-number" id="accel-z-${device.id}">0.0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sensor-group">
+                        <div class="sensor-group-title">🧭 방향</div>
+                        <div class="sensor-values">
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Alpha</div>
+                                <div class="sensor-value-number" id="orient-alpha-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Beta</div>
+                                <div class="sensor-value-number" id="orient-beta-${device.id}">0.0</div>
+                            </div>
+                            <div class="sensor-value">
+                                <div class="sensor-value-label">Gamma</div>
+                                <div class="sensor-value-number" id="orient-gamma-${device.id}">0.0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sensor-group">
+                        <div class="sensor-group-title">📍 GPS</div>
+                        <div class="gps-values">
+                            <div class="gps-value">
+                                <div class="gps-value-label">위도</div>
+                                <div class="gps-value-number" id="gps-lat-${device.id}">-</div>
+                            </div>
+                            <div class="gps-value">
+                                <div class="gps-value-label">경도</div>
+                                <div class="gps-value-number" id="gps-lng-${device.id}">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function updateDeviceDisplay(deviceId) {
+            const device = devices.get(deviceId);
+            if (!device || !device.sensorData) return;
+            
+            const data = device.sensorData;
+            
+            // 자이로스코프 업데이트
+            if (data.gyroscope) {
+                document.getElementById(`gyro-x-${deviceId}`).textContent = data.gyroscope.x.toFixed(2);
+                document.getElementById(`gyro-y-${deviceId}`).textContent = data.gyroscope.y.toFixed(2);
+                document.getElementById(`gyro-z-${deviceId}`).textContent = data.gyroscope.z.toFixed(2);
+            }
+            
+            // 가속도계 업데이트
+            if (data.accelerometer) {
+                document.getElementById(`accel-x-${deviceId}`).textContent = data.accelerometer.x.toFixed(2);
+                document.getElementById(`accel-y-${deviceId}`).textContent = data.accelerometer.y.toFixed(2);
+                document.getElementById(`accel-z-${deviceId}`).textContent = data.accelerometer.z.toFixed(2);
+            }
+            
+            // 방향 업데이트
+            if (data.orientation) {
+                document.getElementById(`orient-alpha-${deviceId}`).textContent = data.orientation.alpha.toFixed(1);
+                document.getElementById(`orient-beta-${deviceId}`).textContent = data.orientation.beta.toFixed(1);
+                document.getElementById(`orient-gamma-${deviceId}`).textContent = data.orientation.gamma.toFixed(1);
+            }
+            
+            // GPS 업데이트
+            if (data.gps && data.gps.latitude) {
+                document.getElementById(`gps-lat-${deviceId}`).textContent = data.gps.latitude.toFixed(6);
+                document.getElementById(`gps-lng-${deviceId}`).textContent = data.gps.longitude.toFixed(6);
+            }
+        }
+
+        function updateChart(sensorData) {
+            if (!chart || !sensorData.accelerometer) return;
+            
+            const now = (Date.now() - startTime) / 1000; // 초 단위
+            
+            // 데이터 포인트 추가
+            chartData.labels.push(now);
+            chartData.datasets[0].data.push(sensorData.accelerometer.x);
+            chartData.datasets[1].data.push(sensorData.accelerometer.y);
+            chartData.datasets[2].data.push(sensorData.accelerometer.z);
+            
+            // 최대 50개 데이터 포인트만 유지
+            if (chartData.labels.length > 50) {
+                chartData.labels.shift();
+                chartData.datasets.forEach(dataset => dataset.data.shift());
+            }
+            
+            chart.update('none');
+        }
+
+        function updateStats() {
+            document.getElementById('connectedDevices').textContent = devices.size;
+            document.getElementById('totalMessages').textContent = totalMessages;
+            
+            const uptime = Math.floor((Date.now() - startTime) / 1000);
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const seconds = uptime % 60;
+            document.getElementById('uptime').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 초당 메시지 수 계산
+        setInterval(() => {
+            document.getElementById('messagesPerSecond').textContent = messagesThisSecond;
+            messagesThisSecond = 0;
+        }, 1000);
+
+        // 통계 업데이트
+        setInterval(updateStats, 1000);
+
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            initChart();
+            connectToServer();
+        };
+    </script>
+</body>
+</html>

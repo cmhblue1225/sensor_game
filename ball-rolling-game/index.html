@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎱 센서 볼 굴리기 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* 게임 컨테이너 */
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 게임 캔버스 */
+        #gameCanvas {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: #2c3e50;
+        }
+
+        /* UI 오버레이 */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 상단 UI */
+        .top-ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-display, .level-display, .lives-display {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 센서 상태 */
+        .sensor-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 기울기 표시 */
+        .tilt-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tilt-dot {
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            border-radius: 50%;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        /* 게임 오버 화면 */
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            display: none;
+            pointer-events: all;
+        }
+
+        .game-over h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 로딩 화면 */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .loading h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00d4ff, #ff00aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .top-ui {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .score-display, .level-display, .lives-display {
+                font-size: 16px;
+                text-align: center;
+            }
+            
+            .tilt-indicator {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .tilt-dot {
+                width: 15px;
+                height: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 로딩 화면 -->
+        <div class="loading" id="loadingScreen">
+            <h1>🎱 볼 굴리기</h1>
+            <p>게임을 초기화하는 중...</p>
+        </div>
+
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <!-- 상단 UI -->
+            <div class="top-ui">
+                <div class="score-display">
+                    <span>점수: <span id="scoreValue">0</span></span>
+                </div>
+                <div class="level-display">
+                    <span>레벨: <span id="levelValue">1</span></span>
+                </div>
+                <div class="lives-display">
+                    <span>생명: <span id="livesValue">3</span></span>
+                </div>
+            </div>
+
+            <!-- 센서 상태 -->
+            <div class="sensor-status">
+                <div id="sensorConnection">📡 센서 연결 대기중...</div>
+                <div>기울기: X=<span id="tiltX">0</span>° Y=<span id="tiltY">0</span>°</div>
+            </div>
+
+            <!-- 기울기 표시기 -->
+            <div class="tilt-indicator">
+                <div class="tilt-dot" id="tiltDot"></div>
+            </div>
+        </div>
+
+        <!-- 게임 오버 화면 -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🎯 게임 오버!</h2>
+            <p>최종 점수: <span id="finalScore">0</span></p>
+            <p>도달 레벨: <span id="finalLevel">1</span></p>
+            <button class="restart-btn" onclick="restartGame()">다시 시작</button>
+            <button class="restart-btn" onclick="showMenu()">메인 메뉴</button>
+        </div>
+    </div>
+
+    <!-- 게임 스크립트 -->
+    <script src="/ball-rolling-game/js/sensorManager.js"></script>
+    <script src="/ball-rolling-game/js/gameEngine.js"></script>
+    <script src="/ball-rolling-game/js/ballPhysics.js"></script>
+    <script src="/ball-rolling-game/js/levelManager.js"></script>
+    <script src="/ball-rolling-game/js/main.js"></script>
+</body>
+</html>
