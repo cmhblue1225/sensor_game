@@ -5,7 +5,7 @@ class Enemy {
         this.radius = radius;
         this.color = color;
         this.speed = speed;
-        this.health = 6;
+        this.health = 5;
         this.isAlive = true;
 
         // Calculate direction towards center (400, 300)
@@ -34,7 +34,7 @@ class Enemy {
         ctx.fillStyle = 'red';
         ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, this.radius * 2, 5);
         ctx.fillStyle = 'green';
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, this.radius * 2 * (this.health / 6), 5);
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, this.radius * 2 * (this.health / 5), 5);
     }
 
     takeDamage(amount) {
