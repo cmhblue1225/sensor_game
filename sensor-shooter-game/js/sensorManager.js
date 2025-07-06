@@ -9,11 +9,10 @@ class SensorManager {
             accelerometer: { x: 0, y: 0, z: 0 }
         };
         
-        // 게임 입력 (조준, 발사)
+        // 게임 입력 (조준)
         this.tiltInput = {
             x: 0,  // 조준 X (-1 ~ 1)
-            y: 0,  // 조준 Y (-1 ~ 1)
-            shoot: false // 발사 플래그
+            y: 0   // 조준 Y (-1 ~ 1)
         };
         
         this.calibration = {
@@ -25,10 +24,6 @@ class SensorManager {
         
         this.callbacks = [];
         this.connectToServer();
-
-        this.lastShootTime = 0;
-        this.shootCooldown = 200; // 발사 쿨다운 (ms)
-        this.shakeThreshold = 15; // 흔들림 감지 임계값 (가속도 크기)
 
         // For simulation mode
         this.simulationInterval = null;
@@ -113,20 +108,6 @@ class SensorManager {
         // -90 ~ 90도를 -1 ~ 1 범위로 매핑 (감도 조절)
         this.tiltInput.x = this.clamp(orientation.gamma / 90, -1, 1); 
         this.tiltInput.y = this.clamp(orientation.beta / 90, -1, 1); 
-
-        // 발사: 가속도계 흔들림 감지
-        const accelMagnitude = Math.sqrt(
-            accelerometer.x * accelerometer.x +
-            accelerometer.y * accelerometer.y +
-            accelerometer.z * accelerometer.z
-        );
-
-        if (accelMagnitude > this.shakeThreshold && (currentTime - this.lastShootTime > this.shootCooldown)) {
-            this.tiltInput.shoot = true;
-            this.lastShootTime = currentTime;
-        } else {
-            this.tiltInput.shoot = false;
-        }
     }
     
     addToHistory(type, data) {
@@ -157,7 +138,7 @@ class SensorManager {
 
     startSimulationMode() {
         if (this.simulationInterval) return;
-        console.warn('🎮 시뮬레이션 모드 시작 (마우스로 조준, 클릭으로 발사)');
+        console.warn('🎮 시뮬레이션 모드 시작 (마우스로 조준)');
         this.isConnected = false;
         
         const canvas = document.getElementById('gameCanvas');
@@ -170,17 +151,8 @@ class SensorManager {
             this.tiltInput.x = this.clamp((this.mouse.x / canvas.width) * 2 - 1, -1, 1); // -1 to 1
             this.tiltInput.y = this.clamp((this.mouse.y / canvas.height) * 2 - 1, -1, 1); // -1 to 1
         });
-        canvas.addEventListener('mousedown', () => { this.mouse.down = true; });
-        canvas.addEventListener('mouseup', () => { this.mouse.down = false; });
 
         this.simulationInterval = setInterval(() => {
-            const currentTime = Date.now();
-            if (this.mouse.down && (currentTime - this.lastShootTime > this.shootCooldown)) {
-                this.tiltInput.shoot = true;
-                this.lastShootTime = currentTime;
-            } else {
-                this.tiltInput.shoot = false;
-            }
             this.updateUI();
             this.callbacks.forEach(cb => cb(this.tiltInput, this.sensorData));
         }, 16);

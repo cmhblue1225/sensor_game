@@ -18,6 +18,9 @@ class SensorShooterGame {
         this.enemySpawnInterval = 1.5; // seconds
         this.maxEnemies = 10;
 
+        this.autoShootTimer = 0;
+        this.autoShootInterval = 0.2; // Auto-shoot every 0.2 seconds
+
         this.init();
     }
 
@@ -65,19 +68,8 @@ class SensorShooterGame {
     handleSensorInput(tiltInput, sensorData) {
         if (!this.gameStarted || this.gameFinished) return;
 
-        // playerTurret.update는 이제 update(deltaTime)에서 호출됩니다.
-        // 여기서는 발사 입력만 처리합니다.
-        if (tiltInput.shoot && this.playerTurret.canShoot()) {
-            const projectileProps = this.playerTurret.shoot();
-            this.projectiles.push(new Projectile(
-                projectileProps.x, 
-                projectileProps.y, 
-                projectileProps.angle, 
-                500, // Projectile speed
-                5,   // Projectile radius
-                'yellow' // Projectile color
-            ));
-        }
+        // 조준만 처리
+        this.playerTurret.update(0, tiltInput); 
     }
 
     update(deltaTime) {
@@ -86,6 +78,23 @@ class SensorShooterGame {
 
         // Update player turret (aiming and cooldowns)
         this.playerTurret.update(deltaTime, this.sensorManager.getTiltInput());
+
+        // Auto-shoot logic
+        this.autoShootTimer += deltaTime;
+        if (this.autoShootTimer >= this.autoShootInterval) {
+            if (this.playerTurret.canShoot()) {
+                const projectileProps = this.playerTurret.shoot();
+                this.projectiles.push(new Projectile(
+                    projectileProps.x, 
+                    projectileProps.y, 
+                    projectileProps.angle, 
+                    500, // Projectile speed
+                    5,   // Projectile radius
+                    'yellow' // Projectile color
+                ));
+            }
+            this.autoShootTimer = 0;
+        }
 
         // Spawn enemies
         this.enemySpawnTimer += deltaTime;
