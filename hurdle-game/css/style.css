@@ -10,7 +10,8 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(to bottom, #87CEEB, #ADD8E6); /* Sky blue gradient */
+    /*background: linear-gradient(to bottom, #87CEEB, #ADD8E6); /* Sky blue gradient */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     overflow: hidden;
     display: flex;
@@ -20,7 +21,7 @@ body {
 
 canvas {
     background-color: #5cb85c; /* Green track */
-    border: 5px solid #4cae4c;
+    border-radius: 15px;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
