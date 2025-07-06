@@ -28,6 +28,16 @@ function createRequestHandler() {
             filePath = path.join(__dirname, 'spaceship-game', 'index.html');
         } else if (req.url === '/ball-game' || req.url === '/ball-rolling') {
             filePath = path.join(__dirname, 'ball-rolling-game', 'index.html');
+        } else if (req.url === '/racing-game' || req.url === '/racing') {
+            filePath = path.join(__dirname, 'racing-game', 'index.html');
+        } else if (req.url === '/sensor-shooter-game' || req.url === '/shooter') {
+            filePath = path.join(__dirname, 'sensor-shooter-game', 'index.html');
+        } else if (req.url === '/runner-game' || req.url === '/runner') {
+            filePath = path.join(__dirname, 'runner-game', 'index.html');
+        } else if (req.url === '/hurdle-game' || req.url === '/hurdle') {
+            filePath = path.join(__dirname, 'hurdle-game', 'index.html');
+        } else if (req.url === '/ramen-slurp-game' || req.url === '/ramen') {
+            filePath = path.join(__dirname, 'ramen-slurp-game', 'index.html');
         } else if (req.url.startsWith('/spaceship-game/')) {
             // 우주선 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/spaceship-game/'.length);
@@ -36,8 +46,28 @@ function createRequestHandler() {
             // 볼 굴리기 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/ball-rolling-game/'.length);
             filePath = path.join(__dirname, 'ball-rolling-game', relativePath);
+        } else if (req.url.startsWith('/racing-game/')) {
+            // 레이싱 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/racing-game/'.length);
+            filePath = path.join(__dirname, 'racing-game', relativePath);
+        } else if (req.url.startsWith('/sensor-shooter-game/')) {
+            // 센서 슈터 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/sensor-shooter-game/'.length);
+            filePath = path.join(__dirname, 'sensor-shooter-game', relativePath);
+        } else if (req.url.startsWith('/runner-game/')) {
+            // 러너 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/runner-game/'.length);
+            filePath = path.join(__dirname, 'runner-game', relativePath);
+        } else if (req.url.startsWith('/hurdle-game/')) {
+            // 허들 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/hurdle-game/'.length);
+            filePath = path.join(__dirname, 'hurdle-game', relativePath);
+        } else if (req.url.startsWith('/ramen-slurp-game/')) {
+            // 라면 후루룩 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/ramen-slurp-game/'.length);
+            filePath = path.join(__dirname, 'ramen-slurp-game', relativePath);
         } else if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/assets/')) {
-            // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (기존 호환성 유지)
+            // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (우주선 게임 호환성 유지)
             filePath = path.join(__dirname, 'spaceship-game', req.url.substring(1));
         } else {
             res.writeHead(404);

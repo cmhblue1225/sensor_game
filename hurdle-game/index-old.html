@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Hurdle Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인 메뉴 버튼 (필수) -->
+        <a href="../index.html" class="back-to-main">🏠 메인으로</a>
+        
+        <!-- 로딩 화면 (필수) -->
+        <div class="loading" id="loadingScreen">
+            <h1>🎮 Hurdle Game</h1>
+            <p>게임을 준비하는 중...</p>
+        </div>
+
+        <!-- 카운트다운 화면 -->
+        <div class="countdown-screen" id="countdownScreen">
+            <div class="countdown-number-container">
+                <span id="countdownNumber">3</span>
+            </div>
+        </div>
+        
+        <!-- 게임 캔버스 (필수) -->
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <div class="game-info">
+                <span>순위: <span id="rankDisplay">1</span></span>
+                <span>거리: <span id="distanceDisplay">0</span>m</span>
+            </div>
+            
+            <!-- 레이서 위치 바 -->
+            <div class="racer-track-overview">
+                <div class="track-line"></div>
+                <div id="racerMarkers" class="racer-markers"></div>
+            </div>
+
+            <!-- 센서 상태 (필수) -->
+            <div class="sensor-status">
+                <div id="sensorConnection">📡 센서 연결 대기중...</div>
+                <div>X: <span id="tiltX">0</span>° | Y: <span id="tiltY">0</span>°</div>
+                <div>Accel Y: <span id="accelY">0</span></div>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 (권장) -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🎮 게임 종료!</h2>
+            <p>최종 순위</p>
+            <ol id="finalRankList"></ol>
+            <button onclick="restartGame()">다시 시작</button>
+            <button onclick="goToMain()">🏠 메인으로</button>
+        </div>
+    </div>
+    
+    <!-- 스크립트 로드 순서 중요 -->
+    <script src="js/sensorManager.js"></script>
+    <script src="js/gameEngine.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/aiPlayer.js"></script>
+    <script src="js/hurdle.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🎮 Hurdle Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            z-index: 200;
+            font-size: 1.1em;
+            transition: background 0.3s ease;
+        }
+
+        .back-to-main:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        .countdown-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            color: white;
+        }
+
+        .countdown-number-container {
+            font-size: 5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        .game-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .racer-track-overview {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .track-line {
+            width: 100%;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+            margin-bottom: 10px;
+        }
+
+        .racer-markers {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 30px;
+        }
+
+        .sensor-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            color: white;
+            text-align: center;
+        }
+
+        .game-over button {
+            background: #4ecdc4;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .game-over button:hover {
+            background: #5dddd4;
+        }
+
+        .game-over ol {
+            text-align: left;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인 메뉴 버튼 -->
+        <a href="/" class="back-to-main">🏠 메인으로</a>
+        
+        <!-- 로딩 화면 -->
+        <div class="loading" id="loadingScreen">
+            <h1>🎮 Hurdle Game</h1>
+            <p>게임을 준비하는 중...</p>
+        </div>
+
+        <!-- 카운트다운 화면 -->
+        <div class="countdown-screen" id="countdownScreen">
+            <div class="countdown-number-container">
+                <span id="countdownNumber">3</span>
+            </div>
+        </div>
+        
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <div class="game-info">
+                <span>순위: <span id="rankDisplay">1</span></span>
+                <span>거리: <span id="distanceDisplay">0</span>m</span>
+            </div>
+            
+            <!-- 레이서 위치 바 -->
+            <div class="racer-track-overview">
+                <div class="track-line"></div>
+                <div id="racerMarkers" class="racer-markers"></div>
+            </div>
+
+            <!-- 센서 상태 -->
+            <div class="sensor-status">
+                <div id="sensorConnection">📡 센서 연결 대기중...</div>
+                <div>X: <span id="tiltX">0</span>° | Y: <span id="tiltY">0</span>°</div>
+                <div>Accel Y: <span id="accelY">0</span></div>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🎮 게임 종료!</h2>
+            <p>최종 순위</p>
+            <ol id="finalRankList"></ol>
+            <button onclick="restartGame()">다시 시작</button>
+            <button onclick="goToMain()">🏠 메인으로</button>
+        </div>
+    </div>
+    
+    <!-- 인라인 게임 스크립트 -->
+    <script>
+        /**
+         * Hurdle Game - 인라인 버전
+         * 2D Canvas 기반 허들 점프 게임
+         */
+
+        class HurdleGame {
+            constructor() {
+                console.log('🏃‍♂️ INLINE HurdleGame 생성자 시작');
+                
+                try {
+                    // Canvas 설정
+                    this.canvas = document.getElementById('gameCanvas');
+                    if (!this.canvas) {
+                        throw new Error('게임 캔버스를 찾을 수 없습니다');
+                    }
+                    
+                    this.ctx = this.canvas.getContext('2d');
+                    this.canvas.width = 1200;
+                    this.canvas.height = 600;
+                    
+                    // 게임 상태
+                    this.gameStarted = false;
+                    this.gameFinished = false;
+                    this.raceDistance = 500; // 500m 레이스
+                    
+                    // 플레이어
+                    this.player = {
+                        x: 100,
+                        y: 500,
+                        width: 40,
+                        height: 60,
+                        velY: 0,
+                        isJumping: false,
+                        distance: 0,
+                        speed: 5,
+                        color: '#ff6b6b'
+                    };
+                    
+                    // AI 플레이어들
+                    this.aiPlayers = [];
+                    this.createAIPlayers(4); // 4명의 AI
+                    
+                    // 허들들
+                    this.hurdles = [];
+                    this.createHurdles();
+                    
+                    // 타이머
+                    this.lastTime = 0;
+                    
+                    // 센서 데이터
+                    this.sensorData = {
+                        connected: false,
+                        accelY: 0,
+                        jumpThreshold: 15
+                    };
+                    
+                    console.log('✅ 모든 컴포넌트 생성 완료');
+                    this.init();
+                } catch (error) {
+                    console.error('❌ HurdleGame 생성자 오류:', error);
+                    throw error;
+                }
+            }
+            
+            init() {
+                console.log('🏃‍♂️ 게임 초기화 시작');
+                
+                // 센서 연결
+                this.connectToSensor();
+                
+                // 키보드 컨트롤 (시뮬레이션)
+                this.setupKeyboardControls();
+                
+                // 로딩 화면 숨기고 카운트다운 시작
+                document.getElementById('loadingScreen').style.display = 'none';
+                this.startCountdown();
+                
+                console.log('✅ 게임 초기화 완료');
+            }
+            
+            createAIPlayers(count) {
+                const colors = ['#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b'];
+                
+                for (let i = 0; i < count; i++) {
+                    this.aiPlayers.push({
+                        x: 100 + (i + 1) * 60,
+                        y: 500,
+                        width: 40,
+                        height: 60,
+                        velY: 0,
+                        isJumping: false,
+                        distance: 0,
+                        speed: 4.5 + Math.random() * 1, // 4.5~5.5 속도
+                        color: colors[i] || '#6c5ce7',
+                        jumpTimer: Math.random() * 2, // 점프 타이밍 랜덤화
+                        name: `AI ${i + 1}`
+                    });
+                }
+            }
+            
+            createHurdles() {
+                // 50m마다 허들 배치
+                for (let i = 1; i <= 10; i++) {
+                    this.hurdles.push({
+                        distance: i * 50,
+                        height: 80,
+                        width: 20,
+                        cleared: false
+                    });
+                }
+            }
+            
+            connectToSensor() {
+                try {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const port = window.location.protocol === 'https:' ? '8443' : '8080';
+                    const wsUrl = `${protocol}//${window.location.hostname}:${port}`;
+                    
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        console.log('센서 WebSocket 연결됨');
+                        this.sensorData.connected = true;
+                        this.updateSensorUI();
+                        
+                        // 게임 클라이언트로 등록
+                        this.ws.send(JSON.stringify({
+                            type: 'game_client_register',
+                            deviceId: 'Hurdle-Game-' + Math.random().toString(36).substr(2, 9),
+                            timestamp: Date.now()
+                        }));
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.type === 'sensor_data') {
+                                const accel = data.data?.accelerometer;
+                                if (accel) {
+                                    this.sensorData.accelY = accel.y || 0;
+                                    
+                                    // 점프 감지 (위로 급격한 가속도)
+                                    if (this.sensorData.accelY > this.sensorData.jumpThreshold && !this.player.isJumping) {
+                                        this.playerJump();
+                                    }
+                                }
+                                this.updateSensorUI();
+                            }
+                        } catch (error) {
+                            console.error('센서 데이터 파싱 오류:', error);
+                        }
+                    };
+                    
+                    this.ws.onclose = () => {
+                        console.log('센서 WebSocket 연결 끊어짐');
+                        this.sensorData.connected = false;
+                        this.updateSensorUI();
+                        
+                        // 재연결 시도
+                        setTimeout(() => this.connectToSensor(), 3000);
+                    };
+                    
+                } catch (error) {
+                    console.error('센서 연결 실패:', error);
+                    this.sensorData.connected = false;
+                    this.updateSensorUI();
+                }
+            }
+            
+            setupKeyboardControls() {
+                // 스페이스바로 점프 (시뮬레이션)
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && this.gameStarted && !this.gameFinished) {
+                        e.preventDefault();
+                        this.playerJump();
+                    }
+                });
+            }
+            
+            playerJump() {
+                if (!this.player.isJumping) {
+                    this.player.isJumping = true;
+                    this.player.velY = -15; // 점프 속도
+                }
+            }
+            
+            startCountdown() {
+                let countdown = 3;
+                const countdownScreen = document.getElementById('countdownScreen');
+                const countdownNumber = document.getElementById('countdownNumber');
+                
+                countdownScreen.style.display = 'flex';
+                countdownNumber.textContent = countdown;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        countdownNumber.textContent = countdown;
+                    } else if (countdown === 0) {
+                        countdownNumber.textContent = 'GO!';
+                    } else {
+                        clearInterval(countdownInterval);
+                        countdownScreen.style.display = 'none';
+                        this.gameStarted = true;
+                        this.startGameLoop();
+                        console.log('🏃‍♂️ 레이스 시작!');
+                    }
+                }, 1000);
+            }
+            
+            startGameLoop() {
+                const gameLoop = (currentTime) => {
+                    if (this.gameFinished) return;
+                    
+                    const deltaTime = currentTime - this.lastTime;
+                    this.lastTime = currentTime;
+                    
+                    this.update(deltaTime);
+                    this.render();
+                    
+                    requestAnimationFrame(gameLoop);
+                };
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            update(deltaTime) {
+                if (!this.gameStarted || this.gameFinished) return;
+                
+                const dt = deltaTime / 1000;
+                
+                // 플레이어 업데이트
+                this.updatePlayer(dt);
+                
+                // AI 플레이어들 업데이트
+                this.updateAIPlayers(dt);
+                
+                // 허들 충돌 체크
+                this.checkHurdleCollisions();
+                
+                // UI 업데이트
+                this.updateUI();
+                
+                // 게임 종료 체크
+                this.checkGameEnd();
+            }
+            
+            updatePlayer(dt) {
+                // 전진
+                this.player.distance += this.player.speed * dt * 10; // 10배 스케일
+                
+                // 점프 물리
+                if (this.player.isJumping) {
+                    this.player.velY += 30 * dt; // 중력
+                    this.player.y += this.player.velY;
+                    
+                    // 착지
+                    if (this.player.y >= 500) {
+                        this.player.y = 500;
+                        this.player.velY = 0;
+                        this.player.isJumping = false;
+                    }
+                }
+            }
+            
+            updateAIPlayers(dt) {
+                this.aiPlayers.forEach(ai => {
+                    // AI 전진
+                    ai.distance += ai.speed * dt * 10;
+                    
+                    // AI 점프 로직 (허들 근처에서 점프)
+                    ai.jumpTimer -= dt;
+                    if (ai.jumpTimer <= 0) {
+                        const nearbyHurdle = this.hurdles.find(h => 
+                            Math.abs(h.distance - ai.distance) < 20 && !h.cleared
+                        );
+                        
+                        if (nearbyHurdle && !ai.isJumping) {
+                            ai.isJumping = true;
+                            ai.velY = -15;
+                        }
+                        
+                        ai.jumpTimer = 1 + Math.random(); // 1~2초 후 다시 체크
+                    }
+                    
+                    // AI 점프 물리
+                    if (ai.isJumping) {
+                        ai.velY += 30 * dt;
+                        ai.y += ai.velY;
+                        
+                        if (ai.y >= 500) {
+                            ai.y = 500;
+                            ai.velY = 0;
+                            ai.isJumping = false;
+                        }
+                    }
+                });
+            }
+            
+            checkHurdleCollisions() {
+                // 플레이어와 허들 충돌
+                this.hurdles.forEach(hurdle => {
+                    if (Math.abs(hurdle.distance - this.player.distance) < 10) {
+                        if (!this.player.isJumping || this.player.y > 450) {
+                            // 허들에 걸림 - 속도 감소
+                            this.player.speed = Math.max(2, this.player.speed - 1);
+                        }
+                    }
+                });
+                
+                // AI와 허들 충돌
+                this.aiPlayers.forEach(ai => {
+                    this.hurdles.forEach(hurdle => {
+                        if (Math.abs(hurdle.distance - ai.distance) < 10) {
+                            if (!ai.isJumping || ai.y > 450) {
+                                ai.speed = Math.max(2, ai.speed - 0.5);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            checkGameEnd() {
+                // 플레이어가 결승선 통과
+                if (this.player.distance >= this.raceDistance) {
+                    this.gameFinished = true;
+                    this.showGameOverScreen();
+                }
+                
+                // 또는 모든 AI가 결승선 통과
+                const finishedAI = this.aiPlayers.filter(ai => ai.distance >= this.raceDistance);
+                if (finishedAI.length >= this.aiPlayers.length) {
+                    this.gameFinished = true;
+                    this.showGameOverScreen();
+                }
+            }
+            
+            render() {
+                // 배경 그리기
+                this.ctx.fillStyle = '#87CEEB';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 트랙 그리기
+                this.drawTrack();
+                
+                // 허들 그리기
+                this.drawHurdles();
+                
+                // 플레이어 그리기
+                this.drawPlayer();
+                
+                // AI 플레이어들 그리기
+                this.drawAIPlayers();
+            }
+            
+            drawTrack() {
+                // 트랙 바닥
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(0, 520, this.canvas.width, 80);
+                
+                // 레인 구분선
+                this.ctx.strokeStyle = 'white';
+                this.ctx.lineWidth = 2;
+                for (let i = 1; i < 6; i++) {
+                    const y = 520 + i * 13;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawHurdles() {
+                this.hurdles.forEach(hurdle => {
+                    // 화면에 보이는 허들만 그리기
+                    const hurdleScreenX = 400 + (hurdle.distance - this.player.distance) * 2;
+                    
+                    if (hurdleScreenX > -50 && hurdleScreenX < this.canvas.width + 50) {
+                        this.ctx.fillStyle = '#654321';
+                        this.ctx.fillRect(hurdleScreenX, 520 - hurdle.height, hurdle.width, hurdle.height);
+                        
+                        // 허들 상단
+                        this.ctx.fillStyle = '#8B4513';
+                        this.ctx.fillRect(hurdleScreenX - 5, 520 - hurdle.height, hurdle.width + 10, 10);
+                    }
+                });
+            }
+            
+            drawPlayer() {
+                this.ctx.fillStyle = this.player.color;
+                this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+                
+                // 플레이어 머리
+                this.ctx.fillStyle = '#FFE4C4';
+                this.ctx.beginPath();
+                this.ctx.arc(this.player.x + this.player.width/2, this.player.y, 15, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawAIPlayers() {
+                this.aiPlayers.forEach(ai => {
+                    this.ctx.fillStyle = ai.color;
+                    this.ctx.fillRect(ai.x, ai.y, ai.width, ai.height);
+                    
+                    // AI 머리
+                    this.ctx.fillStyle = '#FFE4C4';
+                    this.ctx.beginPath();
+                    this.ctx.arc(ai.x + ai.width/2, ai.y, 15, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            updateUI() {
+                // 순위 계산
+                const allRacers = [
+                    { name: 'Player', distance: this.player.distance },
+                    ...this.aiPlayers.map((ai, i) => ({ name: ai.name, distance: ai.distance }))
+                ];
+                allRacers.sort((a, b) => b.distance - a.distance);
+                
+                const playerRank = allRacers.findIndex(r => r.name === 'Player') + 1;
+                
+                document.getElementById('rankDisplay').textContent = playerRank;
+                document.getElementById('distanceDisplay').textContent = Math.floor(this.player.distance);
+                
+                // 레이서 마커 업데이트
+                this.updateRacerMarkers(allRacers);
+            }
+            
+            updateRacerMarkers(allRacers) {
+                const markersContainer = document.getElementById('racerMarkers');
+                markersContainer.innerHTML = '';
+                
+                allRacers.forEach((racer, index) => {
+                    const marker = document.createElement('div');
+                    marker.style.cssText = `
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background: ${racer.name === 'Player' ? '#ff6b6b' : '#4ecdc4'};
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: bold;
+                        color: white;
+                    `;
+                    marker.textContent = index + 1;
+                    markersContainer.appendChild(marker);
+                });
+            }
+            
+            updateSensorUI() {
+                const status = this.sensorData.connected ? '📡 센서 연결됨' : '📡 센서 연결 대기중...';
+                document.getElementById('sensorConnection').textContent = status;
+                document.getElementById('tiltX').textContent = '0';
+                document.getElementById('tiltY').textContent = '0';
+                document.getElementById('accelY').textContent = this.sensorData.accelY.toFixed(1);
+            }
+            
+            showGameOverScreen() {
+                // 최종 순위 계산
+                const allRacers = [
+                    { name: 'Player', distance: this.player.distance },
+                    ...this.aiPlayers.map((ai, i) => ({ name: ai.name, distance: ai.distance }))
+                ];
+                allRacers.sort((a, b) => b.distance - a.distance);
+                
+                const rankList = document.getElementById('finalRankList');
+                rankList.innerHTML = '';
+                
+                allRacers.forEach((racer, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${racer.name}: ${Math.floor(racer.distance)}m`;
+                    if (racer.name === 'Player') {
+                        li.style.fontWeight = 'bold';
+                        li.style.color = '#ff6b6b';
+                    }
+                    rankList.appendChild(li);
+                });
+                
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                console.log('🏃‍♂️ 레이스 종료!');
+            }
+        }
+
+        // 전역 함수들
+        function restartGame() {
+            location.reload();
+        }
+
+        function goToMain() {
+            window.location.href = '/';
+        }
+
+        // 게임 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🏃‍♂️ INLINE 허들 게임 DOM 로드 완료');
+            
+            try {
+                window.hurdleGame = new HurdleGame();
+                console.log('✅ INLINE 허들 게임 초기화 성공!');
+            } catch (error) {
+                console.error('❌ INLINE 게임 초기화 실패:', error);
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.innerHTML = 
+                        `<h1>🚫 게임 초기화 실패</h1><p>오류: ${error.message}</p>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

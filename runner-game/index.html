@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏃‍♂️ 3D Runner Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 메인 메뉴 화면 */
+        .main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+        }
+
+        .menu-content {
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .menu-content h1 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(45deg, #fff, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .menu-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #5dddd4, #54b09d);
+        }
+
+        .menu-btn.secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .menu-btn.secondary:hover {
+            background: linear-gradient(45deg, #7689ea, #8659b2);
+        }
+
+        .connection-status {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        /* 조작법 화면 */
+        .instructions-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .instructions-content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .instructions-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sensor-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            min-width: 50px;
+        }
+
+        /* 설정 화면 */
+        .settings-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .settings-content {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .settings-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .setting-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .setting-item input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .setting-value {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* UI 오버레이 */
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .ui-top {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .ui-bottom {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            pointer-events: none;
+        }
+
+        .score-info {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+        }
+
+        .controls-info {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+            pointer-events: all;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* 게임 오버 화면 */
+        .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 200;
+        }
+
+        .gameover-content {
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .gameover-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .final-score {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .final-score p {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .ui-top, .ui-bottom {
+                left: 10px;
+                right: 10px;
+            }
+            
+            .score-info, .controls-info {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            .menu-content h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <div class="ui-top">
+                <div class="score-info">
+                    <div>점수: <span id="score">0</span></div>
+                    <div>거리: <span id="distance">0</span>m</div>
+                </div>
+                <div class="score-info">
+                    <div>속도: <span id="speed">0</span></div>
+                    <div>레벨: <span id="level">1</span></div>
+                </div>
+            </div>
+            
+            <div class="ui-bottom">
+                <div class="controls-info">
+                    <div id="sensorStatus">📱 센서: 연결 안됨</div>
+                    <div>기울기: <span id="tilt">0.00</span></div>
+                </div>
+                <div class="controls-info">
+                    <div>키보드: A/D 또는 ←/→</div>
+                    <div>점프: 스페이스바</div>
+                </div>
+                <div>
+                    <button class="control-btn" id="pauseBtn">⏸️</button>
+                    <button class="control-btn" id="exitBtn">🚪</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 메인 메뉴 -->
+        <div class="main-menu" id="mainMenu">
+            <div class="menu-content">
+                <h1>🏃‍♂️ 3D RUNNER</h1>
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="startGameBtn">게임 시작</button>
+                    <button class="menu-btn" id="instructionsBtn">조작법</button>
+                    <button class="menu-btn" id="settingsBtn">설정</button>
+                    <button class="menu-btn secondary" id="hubBtn">🏠 메인 허브로</button>
+                </div>
+                <div class="connection-status">
+                    <span id="connectionIndicator">📡 센서 연결 대기중...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 조작법 화면 -->
+        <div class="instructions-screen" id="instructionsScreen">
+            <div class="instructions-content">
+                <h2>🎮 조작법</h2>
+                <div class="instruction-item">
+                    <span class="sensor-icon">📱</span>
+                    <div>
+                        <strong>직관적 레인 선택</strong><br>
+                        가운데 유지: 가운데 레인<br>
+                        왼쪽으로 기울이기: 왼쪽 레인<br>
+                        오른쪽으로 기울이기: 오른쪽 레인
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <span class="sensor-icon">🔼</span>
+                    <div>
+                        <strong>점프</strong><br>
+                        스페이스바를 눌러 장애물을 뛰어넘으세요
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <span class="sensor-icon">⌨️</span>
+                    <div>
+                        <strong>키보드 조작</strong><br>
+                        A/D 또는 ←/→ 키로도 조작 가능합니다
+                    </div>
+                </div>
+                <button class="menu-btn" id="backToMenuFromInstructions">메뉴로 돌아가기</button>
+            </div>
+        </div>
+        
+        <!-- 설정 화면 -->
+        <div class="settings-screen" id="settingsScreen">
+            <div class="settings-content">
+                <h2>⚙️ 설정</h2>
+                <div class="setting-item">
+                    <label>센서 감도</label>
+                    <input type="range" id="sensitivitySlider" min="0.2" max="2.0" step="0.2" value="1.0">
+                    <div class="setting-value">감도: <span id="sensitivityValue">1.0</span></div>
+                </div>
+                <div class="setting-item">
+                    <label>게임 속도</label>
+                    <input type="range" id="speedSlider" min="5" max="15" step="1" value="8">
+                    <div class="setting-value">속도: <span id="speedValue">8</span></div>
+                </div>
+                <div class="setting-item">
+                    <label>음향 효과</label>
+                    <input type="range" id="soundSlider" min="0" max="100" step="10" value="50">
+                    <div class="setting-value">볼륨: <span id="soundValue">50</span>%</div>
+                </div>
+                <button class="menu-btn" id="backToMenuFromSettings">메뉴로 돌아가기</button>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="gameover-content">
+                <h2>💥 게임 오버</h2>
+                <div class="final-score">
+                    <p>최종 점수: <span id="finalScore">0</span></p>
+                    <p>이동 거리: <span id="finalDistance">0</span>m</p>
+                </div>
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="restartBtn">다시 시작</button>
+                    <button class="menu-btn" id="mainMenuBtn">메인 메뉴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- 게임 스크립트 -->
+    <script src="/runner-game/game.js"></script>
+</body>
+</html>

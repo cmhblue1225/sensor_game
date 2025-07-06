@@ -347,6 +347,80 @@ class GameLogic {
     }
     
     /**
+     * 센서 UI 업데이트 (디버깅용)
+     */
+    updateSensorUI(gameInput, sensorData) {
+        // 자이로스코프 데이터 (안전한 표시)
+        const gyroX = document.getElementById('gyroX');
+        const gyroY = document.getElementById('gyroY');
+        const gyroZ = document.getElementById('gyroZ');
+        
+        if (gyroX && sensorData && sensorData.gyroscope) {
+            gyroX.textContent = this.safeDisplayValue(sensorData.gyroscope.x);
+            gyroY.textContent = this.safeDisplayValue(sensorData.gyroscope.y);
+            gyroZ.textContent = this.safeDisplayValue(sensorData.gyroscope.z);
+        }
+        
+        // 가속도계 데이터 (안전한 표시)
+        const accelX = document.getElementById('accelX');
+        const accelY = document.getElementById('accelY');
+        const accelZ = document.getElementById('accelZ');
+        
+        if (accelX && sensorData && sensorData.accelerometer) {
+            accelX.textContent = this.safeDisplayValue(sensorData.accelerometer.x);
+            accelY.textContent = this.safeDisplayValue(sensorData.accelerometer.y);
+            accelZ.textContent = this.safeDisplayValue(sensorData.accelerometer.z);
+        }
+        
+        // 게임 입력 데이터 (디버깅용 - 강화된 표시)
+        const gameInputRoll = document.getElementById('gameInputRoll');
+        const gameInputPitch = document.getElementById('gameInputPitch');
+        const gameInputThrust = document.getElementById('gameInputThrust');
+        
+        if (gameInputRoll && gameInput) {
+            gameInputRoll.textContent = this.safeDisplayValue(gameInput.roll);
+            gameInputPitch.textContent = this.safeDisplayValue(gameInput.pitch);
+            gameInputThrust.textContent = this.safeDisplayValue(gameInput.thrust);
+            
+            // 색상으로 값의 상태 표시
+            this.updateInputIndicator(gameInputRoll, gameInput.roll);
+            this.updateInputIndicator(gameInputPitch, gameInput.pitch);
+            this.updateInputIndicator(gameInputThrust, gameInput.thrust);
+        }
+    }
+    
+    /**
+     * 안전한 값 표시 (NaN 방지)
+     */
+    safeDisplayValue(value) {
+        if (value === undefined || value === null) {
+            return 'NULL';
+        }
+        if (!isFinite(value) || isNaN(value)) {
+            return 'NaN';
+        }
+        return value.toFixed(2);
+    }
+    
+    /**
+     * 입력 인디케이터 색상 업데이트
+     */
+    updateInputIndicator(element, value) {
+        if (!element) return;
+        
+        if (value === undefined || value === null || !isFinite(value) || isNaN(value)) {
+            element.style.color = '#ff0000'; // 빨간색 - 오류
+            element.style.fontWeight = 'bold';
+        } else if (Math.abs(value) > 0.1) {
+            element.style.color = '#00ff00'; // 초록색 - 활성
+            element.style.fontWeight = 'bold';
+        } else {
+            element.style.color = '#ffffff'; // 흰색 - 기본
+            element.style.fontWeight = 'normal';
+        }
+    }
+    
+    /**
      * 최고 점수 로드
      */
     loadHighScore() {

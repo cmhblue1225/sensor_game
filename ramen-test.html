@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🍜 라면 후루룩 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #FFF8DC 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 5px solid #8B4513;
+        }
+
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            z-index: 200;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-to-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        .loading h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .countdown-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            color: white;
+        }
+
+        .countdown-number-container {
+            font-size: 6rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        .game-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid #D2691E;
+        }
+
+        .temperature-meter {
+            position: absolute;
+            top: 20px;
+            right: 180px;
+            width: 200px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 10px;
+            color: white;
+        }
+
+        .temp-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .temp-fill {
+            height: 100%;
+            background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .sensor-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1em;
+            border: 3px solid #D2691E;
+        }
+
+        .slurp-meter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+        }
+
+        .slurp-bar {
+            width: 100%;
+            height: 25px;
+            background: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .slurp-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            transition: width 0.2s ease;
+            border-radius: 12px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            color: white;
+            text-align: center;
+        }
+
+        .game-over h2 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        .game-over button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            margin: 15px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .game-over button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            font-size: 1.5em;
+            backdrop-filter: blur(10px);
+        }
+
+        .character-thought {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            z-index: 180;
+            opacity: 0;
+            transition: all 0.5s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .character-thought.show {
+            opacity: 1;
+            transform: translate(-50%, -120%);
+        }
+
+        .character-thought::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid white;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인으로 버튼 -->
+        <a href="/" class="back-to-main">🏠 메인으로</a>
+        
+        <!-- 로딩 화면 -->
+        <div class="loading" id="loadingScreen">
+            <h1>🍜 라면 후루룩 게임 (테스트)</h1>
+            <p>뜨거운 라면을 조심스럽게 먹어보세요!</p>
+            <p>스페이스바로 후루룩~</p>
+        </div>
+
+        <!-- 카운트다운 화면 -->
+        <div class="countdown-screen" id="countdownScreen">
+            <div class="countdown-number-container">
+                <span id="countdownNumber">3</span>
+            </div>
+        </div>
+        
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas" width="1000" height="700"></canvas>
+        
+        <!-- 캐릭터 생각 말풍선 -->
+        <div class="character-thought" id="characterThought"></div>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <div class="game-info">
+                <div>🍜 남은 라면: <span id="noodleCount">100</span>%</div>
+                <div>⭐ 점수: <span id="scoreDisplay">0</span></div>
+                <div>💎 콤보: <span id="comboDisplay">0</span></div>
+            </div>
+            
+            <!-- 온도 게이지 -->
+            <div class="temperature-meter">
+                <div>🌡️ 라면 온도</div>
+                <div class="temp-bar">
+                    <div class="temp-fill" id="tempFill"></div>
+                </div>
+            </div>
+
+            <!-- 센서 상태 -->
+            <div class="sensor-status">
+                <div>📱 시뮬레이션 모드</div>
+                <div>조작: 스페이스바로 후루룩!</div>
+            </div>
+            
+            <!-- 후루룩 게이지 -->
+            <div class="slurp-meter">
+                <div>🥢 후루룩 파워!</div>
+                <div class="slurp-bar">
+                    <div class="slurp-fill" id="slurpFill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🍜 라면 완주!</h2>
+            <div class="final-stats" id="finalStats">
+                <div>최종 점수: <span id="finalScore">0</span>점</div>
+                <div>최대 콤보: <span id="maxCombo">0</span>회</div>
+                <div>후루룩 횟수: <span id="slurpCount">0</span>번</div>
+                <div id="gameResult">맛있게 드셨습니다!</div>
+            </div>
+            <button onclick="restartGame()">🔄 다시 먹기</button>
+            <button onclick="goToMain()">🏠 메인으로</button>
+        </div>
+    </div>
+    
+    <!-- 게임 스크립트 (간소화 버전) -->
+    <script>
+        class RamenSlurpGame {
+            constructor() {
+                console.log('🍜 라면 후루룩 게임 시작! (테스트 버전)');
+                
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = 1000;
+                this.canvas.height = 700;
+                
+                this.gameStarted = false;
+                this.gameFinished = false;
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.slurpCount = 0;
+                this.noodleAmount = 100;
+                this.ramenTemperature = 80;
+                this.slurpPower = 0;
+                this.lastSlurpTime = 0;
+                
+                this.character = {
+                    x: 150,
+                    y: 300,
+                    mouth: 'normal',
+                    tongueOut: false,
+                    sweat: false
+                };
+                
+                this.bowl = {
+                    x: 400,
+                    y: 400,
+                    width: 200,
+                    height: 100,
+                    steam: []
+                };
+                
+                this.particles = [];
+                this.hotEffects = [];
+                this.lastTime = 0;
+                this.temperatureTimer = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupKeyboardControls();
+                document.getElementById('loadingScreen').style.display = 'none';
+                this.startCountdown();
+            }
+            
+            setupKeyboardControls() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && this.gameStarted && !this.gameFinished) {
+                        e.preventDefault();
+                        this.triggerSlurp();
+                    }
+                });
+            }
+            
+            triggerSlurp() {
+                const now = Date.now();
+                if (now - this.lastSlurpTime < 500) return;
+                
+                this.lastSlurpTime = now;
+                this.slurpCount++;
+                this.slurpPower = Math.min(100, this.slurpPower + 20);
+                
+                const eatAmount = 2 + (this.slurpPower / 20);
+                this.noodleAmount = Math.max(0, this.noodleAmount - eatAmount);
+                
+                let points = 10;
+                if (this.ramenTemperature > 70) {
+                    points = 5;
+                    this.character.mouth = 'hot';
+                    this.character.tongueOut = true;
+                    this.showThought('아 뜨거워! 😵');
+                    this.addHotEffect();
+                } else if (this.ramenTemperature < 30) {
+                    points = 3;
+                    this.showThought('차가워... 😞');
+                } else {
+                    this.combo++;
+                    points = 10 + (this.combo * 2);
+                    this.character.mouth = 'happy';
+                    this.showThought(['맛있어! 😋', '후루룩~ 😊', '최고야! 🤤'][Math.floor(Math.random() * 3)]);
+                }
+                
+                this.score += points;
+                this.maxCombo = Math.max(this.maxCombo, this.combo);
+                this.addSlurpParticles();
+                
+                console.log(`후루룩! 점수: ${points}, 콤보: ${this.combo}`);
+            }
+            
+            addSlurpParticles() {
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x: this.character.x + 50,
+                        y: this.character.y + 80,
+                        velX: (Math.random() - 0.5) * 4,
+                        velY: -Math.random() * 3,
+                        size: 3 + Math.random() * 5,
+                        color: '#FFD700',
+                        life: 30 + Math.random() * 20
+                    });
+                }
+            }
+            
+            addHotEffect() {
+                this.character.sweat = true;
+                this.canvas.classList.add('shake');
+                setTimeout(() => {
+                    this.canvas.classList.remove('shake');
+                    this.character.sweat = false;
+                    this.character.tongueOut = false;
+                }, 1000);
+                
+                for (let i = 0; i < 10; i++) {
+                    this.hotEffects.push({
+                        x: this.character.x + Math.random() * 100,
+                        y: this.character.y + Math.random() * 100,
+                        size: 5 + Math.random() * 8,
+                        life: 20 + Math.random() * 30,
+                        color: `hsl(${Math.random() * 60}, 100%, 60%)`
+                    });
+                }
+                
+                this.combo = 0;
+            }
+            
+            showThought(text) {
+                const thoughtElement = document.getElementById('characterThought');
+                thoughtElement.textContent = text;
+                thoughtElement.classList.add('show');
+                
+                setTimeout(() => {
+                    thoughtElement.classList.remove('show');
+                }, 2000);
+            }
+            
+            startCountdown() {
+                let countdown = 3;
+                const countdownScreen = document.getElementById('countdownScreen');
+                const countdownNumber = document.getElementById('countdownNumber');
+                
+                countdownScreen.style.display = 'flex';
+                countdownNumber.textContent = countdown;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        countdownNumber.textContent = countdown;
+                    } else if (countdown === 0) {
+                        countdownNumber.textContent = '라면 타임! 🍜';
+                    } else {
+                        clearInterval(countdownInterval);
+                        countdownScreen.style.display = 'none';
+                        this.gameStarted = true;
+                        this.startGameLoop();
+                        console.log('🍜 라면 게임 시작!');
+                    }
+                }, 1000);
+            }
+            
+            startGameLoop() {
+                const gameLoop = (currentTime) => {
+                    if (this.gameFinished) return;
+                    
+                    const deltaTime = currentTime - this.lastTime;
+                    this.lastTime = currentTime;
+                    
+                    this.update(deltaTime);
+                    this.render();
+                    
+                    requestAnimationFrame(gameLoop);
+                };
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            update(deltaTime) {
+                if (!this.gameStarted || this.gameFinished) return;
+                
+                const dt = deltaTime / 1000;
+                
+                this.temperatureTimer += deltaTime;
+                if (this.temperatureTimer > 2000) {
+                    this.ramenTemperature = Math.max(10, this.ramenTemperature - 2);
+                    this.temperatureTimer = 0;
+                }
+                
+                this.slurpPower = Math.max(0, this.slurpPower - dt * 15);
+                this.updateParticles(dt);
+                this.updateUI();
+                
+                if (this.noodleAmount <= 0) {
+                    this.gameFinished = true;
+                    this.showGameOverScreen();
+                }
+            }
+            
+            updateParticles(dt) {
+                this.particles.forEach((particle, index) => {
+                    particle.x += particle.velX;
+                    particle.y += particle.velY;
+                    particle.velY += 0.2;
+                    particle.life--;
+                    
+                    if (particle.life <= 0) {
+                        this.particles.splice(index, 1);
+                    }
+                });
+                
+                this.hotEffects.forEach((effect, index) => {
+                    effect.life--;
+                    effect.y -= 2;
+                    
+                    if (effect.life <= 0) {
+                        this.hotEffects.splice(index, 1);
+                    }
+                });
+            }
+            
+            render() {
+                this.ctx.fillStyle = '#FFF8DC';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.drawTable();
+                this.drawBowl();
+                this.drawCharacter();
+                this.drawParticles();
+                this.drawHotEffects();
+            }
+            
+            drawTable() {
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(0, 500, this.canvas.width, 200);
+            }
+            
+            drawBowl() {
+                this.ctx.fillStyle = '#FF6B35';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2 + 10, this.bowl.height/2 + 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2, this.bowl.height/2, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2 - 10, this.bowl.height/2 - 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawCharacter() {
+                const char = this.character;
+                
+                this.ctx.fillStyle = '#FFDBAC';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 50, char.y + 50, 40, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#4169E1';
+                this.ctx.fillRect(char.x + 20, char.y + 90, 60, 80);
+                
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 35, char.y + 40, 8, 0, Math.PI * 2);
+                this.ctx.arc(char.x + 65, char.y + 40, 8, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 35, char.y + 40, 4, 0, Math.PI * 2);
+                this.ctx.arc(char.x + 65, char.y + 40, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = '#000000';
+                switch (char.mouth) {
+                    case 'happy':
+                        this.ctx.beginPath();
+                        this.ctx.arc(char.x + 50, char.y + 60, 12, 0, Math.PI);
+                        this.ctx.stroke();
+                        break;
+                    case 'hot':
+                        this.ctx.fillStyle = '#FF0000';
+                        this.ctx.beginPath();
+                        this.ctx.arc(char.x + 50, char.y + 65, 6, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+                    default:
+                        this.ctx.fillRect(char.x + 45, char.y + 65, 10, 2);
+                }
+                
+                if (char.tongueOut) {
+                    this.ctx.fillStyle = '#FF69B4';
+                    this.ctx.fillRect(char.x + 48, char.y + 70, 4, 10);
+                }
+                
+                if (char.sweat) {
+                    this.ctx.fillStyle = '#87CEEB';
+                    this.ctx.beginPath();
+                    this.ctx.arc(char.x + 25, char.y + 30, 3, 0, Math.PI * 2);
+                    this.ctx.arc(char.x + 75, char.y + 35, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            drawParticles() {
+                this.particles.forEach(particle => {
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            drawHotEffects() {
+                this.hotEffects.forEach(effect => {
+                    this.ctx.fillStyle = effect.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(effect.x, effect.y, effect.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            updateUI() {
+                document.getElementById('noodleCount').textContent = Math.ceil(this.noodleAmount);
+                document.getElementById('scoreDisplay').textContent = this.score;
+                document.getElementById('comboDisplay').textContent = this.combo;
+                
+                const tempFill = document.getElementById('tempFill');
+                tempFill.style.width = this.ramenTemperature + '%';
+                
+                const slurpFill = document.getElementById('slurpFill');
+                slurpFill.style.width = this.slurpPower + '%';
+            }
+            
+            showGameOverScreen() {
+                let resultText = '';
+                if (this.score >= 1000) {
+                    resultText = '🏆 라면 마스터! 완벽해요!';
+                } else if (this.score >= 500) {
+                    resultText = '😋 맛있게 드셨네요!';
+                } else if (this.score >= 200) {
+                    resultText = '🙂 괜찮게 드셨어요!';
+                } else {
+                    resultText = '😅 다음엔 더 조심히 드세요!';
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('maxCombo').textContent = this.maxCombo;
+                document.getElementById('slurpCount').textContent = this.slurpCount;
+                document.getElementById('gameResult').textContent = resultText;
+                
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                console.log('🍜 라면 완주! 최종 점수:', this.score);
+            }
+        }
+
+        function restartGame() {
+            location.reload();
+        }
+
+        function goToMain() {
+            window.location.href = '/';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🍜 라면 후루룩 게임 테스트 버전 로드');
+            
+            try {
+                window.ramenSlurpGame = new RamenSlurpGame();
+                console.log('✅ 라면 후루룩 게임 초기화 성공!');
+            } catch (error) {
+                console.error('❌ 게임 초기화 실패:', error);
+            }
+        });
+    </script>
+</body>
+</html>

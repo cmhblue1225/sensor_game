@@ -1,0 +1,265 @@
+/* 기본 레이아웃 */
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh; /* Ensure body takes full viewport height */
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    /*background: linear-gradient(to bottom, #87CEEB, #ADD8E6); /* Sky blue gradient */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    background-color: #5cb85c; /* Green track */
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* 메인 버튼 (필수) */
+.back-to-main {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    z-index: 100;
+    font-size: 1.1em;
+    transition: background 0.3s ease;
+}
+
+.back-to-main:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* 센서 상태 (필수) */
+.sensor-status {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    z-index: 100;
+}
+
+/* 로딩 화면 (필수) */
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    font-size: 1.5em;
+}
+
+.loading h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.loading p {
+    font-size: 1em;
+}
+
+/* 카운트다운 화면 */
+.countdown-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 210; /* Higher than loading screen */
+    font-size: 8em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
+    overflow: hidden;
+}
+
+.countdown-number-container {
+    position: relative;
+    width: 1em; /* To contain the number */
+    height: 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#countdownNumber {
+    animation: countdown-scale 1s ease-out forwards;
+}
+
+@keyframes countdown-scale {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.go-text {
+    animation: go-scale 0.5s ease-out forwards;
+}
+
+@keyframes go-scale {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 1;
+    }
+}
+
+/* 게임 오버 */
+.game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    font-size: 1.5em;
+    display: none; /* Initially hidden */
+}
+
+.game-over h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.game-over p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.game-over ol {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+    text-align: left;
+}
+
+.game-over ol li {
+    margin-bottom: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.game-over button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.game-over button:hover {
+    background: #45a049;
+}
+
+.ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+.game-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    line-height: 1.5;
+    z-index: 100;
+}
+
+/* 레이서 위치 바 */
+.racer-track-overview {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%; /* Adjust width as needed */
+    height: 40px; /* Increased height for visibility */
+    background-color: lime; /* Changed to lime for testing visibility */
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.racer-track-overview .track-line {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.racer-markers {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.racer-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}

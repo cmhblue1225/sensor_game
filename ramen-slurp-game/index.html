@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🍜 라면 후루룩 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #FFF8DC 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 5px solid #8B4513;
+        }
+
+        .back-to-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            z-index: 200;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .back-to-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        .loading h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .countdown-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            color: white;
+        }
+
+        .countdown-number-container {
+            font-size: 6rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 150;
+        }
+
+        .game-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid #D2691E;
+        }
+
+        .temperature-meter {
+            position: absolute;
+            top: 20px;
+            right: 180px;
+            width: 200px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 10px;
+            color: white;
+        }
+
+        .temp-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .temp-fill {
+            height: 100%;
+            background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .sensor-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1em;
+            border: 3px solid #D2691E;
+        }
+
+        .slurp-meter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+        }
+
+        .slurp-bar {
+            width: 100%;
+            height: 25px;
+            background: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .slurp-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            transition: width 0.2s ease;
+            border-radius: 12px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            color: white;
+            text-align: center;
+        }
+
+        .game-over h2 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        .game-over button {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            margin: 15px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .game-over button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            font-size: 1.5em;
+            backdrop-filter: blur(10px);
+        }
+
+        .character-thought {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            z-index: 180;
+            opacity: 0;
+            transition: all 0.5s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .character-thought.show {
+            opacity: 1;
+            transform: translate(-50%, -120%);
+        }
+
+        .character-thought::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid white;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            80% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인으로 버튼 -->
+        <a href="/" class="back-to-main">🏠 메인으로</a>
+        
+        <!-- 로딩 화면 -->
+        <div class="loading" id="loadingScreen">
+            <h1>🍜 라면 후루룩 게임</h1>
+            <p>뜨거운 라면을 조심스럽게 먹어보세요!</p>
+            <p>휴대폰을 입 근처로 가져와서 후루룩~</p>
+        </div>
+
+        <!-- 카운트다운 화면 -->
+        <div class="countdown-screen" id="countdownScreen">
+            <div class="countdown-number-container">
+                <span id="countdownNumber">3</span>
+            </div>
+        </div>
+        
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas" width="1000" height="700"></canvas>
+        
+        <!-- 캐릭터 생각 말풍선 -->
+        <div class="character-thought" id="characterThought"></div>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <div class="game-info">
+                <div>🍜 남은 라면: <span id="noodleCount">100</span>%</div>
+                <div>⭐ 점수: <span id="scoreDisplay">0</span></div>
+                <div>💎 콤보: <span id="comboDisplay">0</span></div>
+            </div>
+            
+            <!-- 온도 게이지 -->
+            <div class="temperature-meter">
+                <div>🌡️ 라면 온도</div>
+                <div class="temp-bar">
+                    <div class="temp-fill" id="tempFill"></div>
+                </div>
+            </div>
+
+            <!-- 센서 상태 -->
+            <div class="sensor-status">
+                <div id="sensorConnection">📱 센서 연결 대기중...</div>
+                <div>기울기: <span id="tiltAngle">0</span>°</div>
+                <div>거리: <span id="phoneDistance">멀어요</span></div>
+            </div>
+            
+            <!-- 후루룩 게이지 -->
+            <div class="slurp-meter">
+                <div>🥢 후루룩 파워!</div>
+                <div class="slurp-bar">
+                    <div class="slurp-fill" id="slurpFill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🍜 라면 완주!</h2>
+            <div class="final-stats" id="finalStats">
+                <div>최종 점수: <span id="finalScore">0</span>점</div>
+                <div>최대 콤보: <span id="maxCombo">0</span>회</div>
+                <div>후루룩 횟수: <span id="slurpCount">0</span>번</div>
+                <div id="gameResult">맛있게 드셨습니다!</div>
+            </div>
+            <button onclick="restartGame()">🔄 다시 먹기</button>
+            <button onclick="goToMain()">🏠 메인으로</button>
+        </div>
+    </div>
+    
+    <!-- 인라인 게임 스크립트 -->
+    <script>
+        /**
+         * 🍜 라면 후루룩 게임
+         * 센서 기반 개그 게임
+         */
+
+        class RamenSlurpGame {
+            constructor() {
+                console.log('🍜 라면 후루룩 게임 시작!');
+                
+                try {
+                    // Canvas 설정
+                    this.canvas = document.getElementById('gameCanvas');
+                    this.ctx = this.canvas.getContext('2d');
+                    this.canvas.width = 1000;
+                    this.canvas.height = 700;
+                    
+                    // 게임 상태
+                    this.gameStarted = false;
+                    this.gameFinished = false;
+                    this.score = 0;
+                    this.combo = 0;
+                    this.maxCombo = 0;
+                    this.slurpCount = 0;
+                    
+                    // 라면 상태
+                    this.noodleAmount = 100; // 100%에서 시작
+                    this.ramenTemperature = 80; // 뜨거움 (0-100)
+                    this.slurpPower = 0; // 현재 후루룩 파워
+                    this.lastSlurpTime = 0;
+                    
+                    // 캐릭터 상태
+                    this.character = {
+                        x: 150,
+                        y: 300,
+                        mouth: 'normal', // normal, open, hot, happy
+                        eyesX: 0, // 눈동자 X 위치
+                        eyesY: 0, // 눈동자 Y 위치
+                        tongueOut: false,
+                        sweat: false
+                    };
+                    
+                    // 라면 그릇
+                    this.bowl = {
+                        x: 400,
+                        y: 400,
+                        width: 200,
+                        height: 100,
+                        steam: [] // 김 파티클들
+                    };
+                    
+                    // 면발들
+                    this.noodles = [];
+                    this.createNoodles();
+                    
+                    // 효과들
+                    this.particles = [];
+                    this.hotEffects = [];
+                    
+                    // 타이머
+                    this.lastTime = 0;
+                    this.thoughtTimer = 0;
+                    this.temperatureTimer = 0;
+                    
+                    // 센서 데이터
+                    this.sensorData = {
+                        connected: false,
+                        tilt: 0,
+                        distance: 'far', // near, medium, far
+                        isSlurping: false
+                    };
+                    
+                    console.log('✅ 게임 초기화 완료');
+                    this.init();
+                } catch (error) {
+                    console.error('❌ 게임 초기화 실패:', error);
+                    throw error;
+                }
+            }
+            
+            init() {
+                // 센서 연결
+                this.connectToSensor();
+                
+                // 키보드 컨트롤 (시뮬레이션)
+                this.setupKeyboardControls();
+                
+                // 김 효과 생성
+                this.generateSteam();
+                
+                // 로딩 화면 숨기고 카운트다운 시작
+                document.getElementById('loadingScreen').style.display = 'none';
+                this.startCountdown();
+            }
+            
+            createNoodles() {
+                // 그릇 안의 면발들 생성
+                for (let i = 0; i < 50; i++) {
+                    this.noodles.push({
+                        x: this.bowl.x + Math.random() * this.bowl.width,
+                        y: this.bowl.y + Math.random() * (this.bowl.height - 20),
+                        length: 20 + Math.random() * 30,
+                        angle: Math.random() * Math.PI * 2,
+                        wave: Math.random() * 10,
+                        eaten: false
+                    });
+                }
+            }
+            
+            generateSteam() {
+                // 김 파티클 생성
+                if (this.ramenTemperature > 30) {
+                    for (let i = 0; i < 3; i++) {
+                        this.bowl.steam.push({
+                            x: this.bowl.x + Math.random() * this.bowl.width,
+                            y: this.bowl.y,
+                            size: 5 + Math.random() * 10,
+                            opacity: 0.5 + Math.random() * 0.5,
+                            velY: -1 - Math.random() * 2,
+                            life: 60 + Math.random() * 60
+                        });
+                    }
+                }
+            }
+            
+            connectToSensor() {
+                try {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const port = window.location.protocol === 'https:' ? '8443' : '8080';
+                    const wsUrl = `${protocol}//${window.location.hostname}:${port}`;
+                    
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        console.log('센서 WebSocket 연결됨');
+                        this.sensorData.connected = true;
+                        this.updateSensorUI();
+                        
+                        this.ws.send(JSON.stringify({
+                            type: 'game_client_register',
+                            deviceId: 'Ramen-Slurp-' + Math.random().toString(36).substr(2, 9),
+                            timestamp: Date.now()
+                        }));
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.type === 'sensor_data') {
+                                const orientation = data.data?.orientation;
+                                const accel = data.data?.accelerometer;
+                                
+                                if (orientation) {
+                                    this.sensorData.tilt = orientation.beta || 0;
+                                    
+                                    // 거리 판단 (기울기로 근사)
+                                    const absVal = Math.abs(this.sensorData.tilt);
+                                    if (absVal > 40) {
+                                        this.sensorData.distance = 'near';
+                                    } else if (absVal > 20) {
+                                        this.sensorData.distance = 'medium';
+                                    } else {
+                                        this.sensorData.distance = 'far';
+                                    }
+                                    
+                                    // 후루룩 감지 (앞으로 기울이기)
+                                    if (this.sensorData.tilt > 30 && this.sensorData.distance === 'near') {
+                                        this.triggerSlurp();
+                                    }
+                                }
+                                
+                                this.updateSensorUI();
+                            }
+                        } catch (error) {
+                            console.error('센서 데이터 파싱 오류:', error);
+                        }
+                    };
+                    
+                    this.ws.onclose = () => {
+                        console.log('센서 WebSocket 연결 끊어짐');
+                        this.sensorData.connected = false;
+                        this.updateSensorUI();
+                        setTimeout(() => this.connectToSensor(), 3000);
+                    };
+                    
+                } catch (error) {
+                    console.error('센서 연결 실패:', error);
+                    this.sensorData.connected = false;
+                    this.updateSensorUI();
+                }
+            }
+            
+            setupKeyboardControls() {
+                // 스페이스바로 후루룩 (시뮬레이션)
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && this.gameStarted && !this.gameFinished) {
+                        e.preventDefault();
+                        this.triggerSlurp();
+                    }
+                });
+            }
+            
+            triggerSlurp() {
+                const now = Date.now();
+                if (now - this.lastSlurpTime < 500) return; // 0.5초 쿨다운
+                
+                this.lastSlurpTime = now;
+                this.slurpCount++;
+                
+                // 후루룩 파워 증가
+                this.slurpPower = Math.min(100, this.slurpPower + 20);
+                
+                // 라면 먹기
+                const eatAmount = 2 + (this.slurpPower / 20);
+                this.noodleAmount = Math.max(0, this.noodleAmount - eatAmount);
+                
+                // 점수 계산
+                let points = 10;
+                if (this.ramenTemperature > 70) {
+                    // 너무 뜨거우면 감점
+                    points = 5;
+                    this.character.mouth = 'hot';
+                    this.character.tongueOut = true;
+                    this.showThought('아 뜨거워! 😵');
+                    this.addHotEffect();
+                } else if (this.ramenTemperature < 30) {
+                    // 너무 차가우면 감점
+                    points = 3;
+                    this.showThought('차가워... 😞');
+                } else {
+                    // 적절한 온도
+                    this.combo++;
+                    points = 10 + (this.combo * 2);
+                    this.character.mouth = 'happy';
+                    this.showThought(['맛있어! 😋', '후루룩~ 😊', '최고야! 🤤'][Math.floor(Math.random() * 3)]);
+                }
+                
+                this.score += points;
+                this.maxCombo = Math.max(this.maxCombo, this.combo);
+                
+                // 파티클 효과
+                this.addSlurpParticles();
+                
+                // 면발 제거 애니메이션
+                this.removeNoodles(eatAmount);
+                
+                console.log(`후루룩! 점수: ${points}, 콤보: ${this.combo}`);
+            }
+            
+            addSlurpParticles() {
+                // 후루룩 파티클 생성
+                for (let i = 0; i < 5; i++) {
+                    this.particles.push({
+                        x: this.character.x + 50,
+                        y: this.character.y + 80,
+                        velX: (Math.random() - 0.5) * 4,
+                        velY: -Math.random() * 3,
+                        size: 3 + Math.random() * 5,
+                        color: '#FFD700',
+                        life: 30 + Math.random() * 20
+                    });
+                }
+            }
+            
+            addHotEffect() {
+                // 뜨거워서 놀라는 효과
+                this.character.sweat = true;
+                this.canvas.classList.add('shake');
+                setTimeout(() => {
+                    this.canvas.classList.remove('shake');
+                    this.character.sweat = false;
+                    this.character.tongueOut = false;
+                }, 1000);
+                
+                // 열기 효과
+                for (let i = 0; i < 10; i++) {
+                    this.hotEffects.push({
+                        x: this.character.x + Math.random() * 100,
+                        y: this.character.y + Math.random() * 100,
+                        size: 5 + Math.random() * 8,
+                        life: 20 + Math.random() * 30,
+                        color: `hsl(${Math.random() * 60}, 100%, 60%)`
+                    });
+                }
+                
+                // 콤보 리셋
+                this.combo = 0;
+            }
+            
+            removeNoodles(amount) {
+                // 먹은 만큼 면발 제거
+                const noodlesToRemove = Math.floor(amount / 2);
+                let removed = 0;
+                
+                for (let noodle of this.noodles) {
+                    if (!noodle.eaten && removed < noodlesToRemove) {
+                        noodle.eaten = true;
+                        removed++;
+                    }
+                }
+            }
+            
+            showThought(text) {
+                const thoughtElement = document.getElementById('characterThought');
+                thoughtElement.textContent = text;
+                thoughtElement.classList.add('show');
+                
+                setTimeout(() => {
+                    thoughtElement.classList.remove('show');
+                }, 2000);
+            }
+            
+            startCountdown() {
+                let countdown = 3;
+                const countdownScreen = document.getElementById('countdownScreen');
+                const countdownNumber = document.getElementById('countdownNumber');
+                
+                countdownScreen.style.display = 'flex';
+                countdownNumber.textContent = countdown;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        countdownNumber.textContent = countdown;
+                    } else if (countdown === 0) {
+                        countdownNumber.textContent = '라면 타임! 🍜';
+                    } else {
+                        clearInterval(countdownInterval);
+                        countdownScreen.style.display = 'none';
+                        this.gameStarted = true;
+                        this.startGameLoop();
+                        console.log('🍜 라면 게임 시작!');
+                    }
+                }, 1000);
+            }
+            
+            startGameLoop() {
+                const gameLoop = (currentTime) => {
+                    if (this.gameFinished) return;
+                    
+                    const deltaTime = currentTime - this.lastTime;
+                    this.lastTime = currentTime;
+                    
+                    this.update(deltaTime);
+                    this.render();
+                    
+                    requestAnimationFrame(gameLoop);
+                };
+                
+                requestAnimationFrame(gameLoop);
+            }
+            
+            update(deltaTime) {
+                if (!this.gameStarted || this.gameFinished) return;
+                
+                const dt = deltaTime / 1000;
+                
+                // 온도 감소 (시간이 지나면서 라면이 식어감)
+                this.temperatureTimer += deltaTime;
+                if (this.temperatureTimer > 2000) { // 2초마다
+                    this.ramenTemperature = Math.max(10, this.ramenTemperature - 2);
+                    this.temperatureTimer = 0;
+                }
+                
+                // 후루룩 파워 감소
+                this.slurpPower = Math.max(0, this.slurpPower - dt * 15);
+                
+                // 캐릭터 상태 업데이트
+                this.updateCharacter(dt);
+                
+                // 파티클 업데이트
+                this.updateParticles(dt);
+                
+                // 김 효과 업데이트
+                this.updateSteam(dt);
+                
+                // 새로운 김 생성
+                if (Math.random() < 0.1) {
+                    this.generateSteam();
+                }
+                
+                // UI 업데이트
+                this.updateUI();
+                
+                // 게임 종료 체크
+                if (this.noodleAmount <= 0) {
+                    this.gameFinished = true;
+                    this.showGameOverScreen();
+                }
+            }
+            
+            updateCharacter(dt) {
+                // 캐릭터 표정 자동 복구
+                if (this.character.mouth === 'hot' || this.character.mouth === 'happy') {
+                    setTimeout(() => {
+                        if (this.character.mouth !== 'normal') {
+                            this.character.mouth = 'normal';
+                        }
+                    }, 1000);
+                }
+                
+                // 눈동자 움직임 (라면 그릇 쳐다보기)
+                const targetX = (this.bowl.x - this.character.x) * 0.02;
+                const targetY = (this.bowl.y - this.character.y) * 0.02;
+                
+                this.character.eyesX += (targetX - this.character.eyesX) * 0.1;
+                this.character.eyesY += (targetY - this.character.eyesY) * 0.1;
+            }
+            
+            updateParticles(dt) {
+                // 파티클 업데이트
+                this.particles.forEach((particle, index) => {
+                    particle.x += particle.velX;
+                    particle.y += particle.velY;
+                    particle.velY += 0.2; // 중력
+                    particle.life--;
+                    
+                    if (particle.life <= 0) {
+                        this.particles.splice(index, 1);
+                    }
+                });
+                
+                // 열기 효과 업데이트
+                this.hotEffects.forEach((effect, index) => {
+                    effect.life--;
+                    effect.y -= 2;
+                    
+                    if (effect.life <= 0) {
+                        this.hotEffects.splice(index, 1);
+                    }
+                });
+            }
+            
+            updateSteam(dt) {
+                // 김 업데이트
+                this.bowl.steam.forEach((steam, index) => {
+                    steam.y += steam.velY;
+                    steam.opacity -= 0.01;
+                    steam.life--;
+                    
+                    if (steam.life <= 0 || steam.opacity <= 0) {
+                        this.bowl.steam.splice(index, 1);
+                    }
+                });
+            }
+            
+            render() {
+                // 배경 그리기
+                this.ctx.fillStyle = '#FFF8DC';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 테이블 그리기
+                this.drawTable();
+                
+                // 라면 그릇 그리기
+                this.drawBowl();
+                
+                // 김 효과 그리기
+                this.drawSteam();
+                
+                // 면발 그리기
+                this.drawNoodles();
+                
+                // 캐릭터 그리기
+                this.drawCharacter();
+                
+                // 파티클 효과 그리기
+                this.drawParticles();
+                
+                // 열기 효과 그리기
+                this.drawHotEffects();
+            }
+            
+            drawTable() {
+                // 테이블 상판
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.fillRect(0, 500, this.canvas.width, 200);
+                
+                // 테이블 다리
+                this.ctx.fillStyle = '#654321';
+                this.ctx.fillRect(50, 600, 20, 100);
+                this.ctx.fillRect(this.canvas.width - 70, 600, 20, 100);
+            }
+            
+            drawBowl() {
+                // 그릇 외부
+                this.ctx.fillStyle = '#FF6B35';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2 + 10, this.bowl.height/2 + 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 그릇 내부
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2, this.bowl.height/2, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 국물
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2, this.bowl.y + this.bowl.height/2, 
+                    this.bowl.width/2 - 10, this.bowl.height/2 - 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 그릇 하이라이트
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.bowl.x + this.bowl.width/2 - 30, this.bowl.y + this.bowl.height/2 - 20, 
+                    20, 15, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawNoodles() {
+                this.ctx.strokeStyle = '#FFEB3B';
+                this.ctx.lineWidth = 3;
+                
+                this.noodles.forEach(noodle => {
+                    if (noodle.eaten) return;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(noodle.x, noodle.y);
+                    
+                    // 구불구불한 면발 그리기
+                    for (let i = 0; i < noodle.length; i += 5) {
+                        const waveX = noodle.x + i;
+                        const waveY = noodle.y + Math.sin((i + noodle.wave) * 0.1) * 5;
+                        this.ctx.lineTo(waveX, waveY);
+                    }
+                    
+                    this.ctx.stroke();
+                });
+            }
+            
+            drawSteam() {
+                this.bowl.steam.forEach(steam => {
+                    this.ctx.fillStyle = `rgba(255, 255, 255, ${steam.opacity})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(steam.x, steam.y, steam.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            drawCharacter() {
+                const char = this.character;
+                
+                // 머리
+                this.ctx.fillStyle = '#FFDBAC';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 50, char.y + 50, 40, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 몸
+                this.ctx.fillStyle = '#4169E1';
+                this.ctx.fillRect(char.x + 20, char.y + 90, 60, 80);
+                
+                // 팔
+                this.ctx.fillStyle = '#FFDBAC';
+                this.ctx.fillRect(char.x - 10, char.y + 100, 20, 50);
+                this.ctx.fillRect(char.x + 90, char.y + 100, 20, 50);
+                
+                // 눈
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 35 + char.eyesX, char.y + 40 + char.eyesY, 8, 0, Math.PI * 2);
+                this.ctx.arc(char.x + 65 + char.eyesX, char.y + 40 + char.eyesY, 8, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 눈동자
+                this.ctx.fillStyle = '#000000';
+                this.ctx.beginPath();
+                this.ctx.arc(char.x + 35 + char.eyesX, char.y + 40 + char.eyesY, 4, 0, Math.PI * 2);
+                this.ctx.arc(char.x + 65 + char.eyesX, char.y + 40 + char.eyesY, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 입
+                this.ctx.fillStyle = '#000000';
+                switch (char.mouth) {
+                    case 'open':
+                        this.ctx.beginPath();
+                        this.ctx.arc(char.x + 50, char.y + 65, 8, 0, Math.PI);
+                        this.ctx.fill();
+                        break;
+                    case 'happy':
+                        this.ctx.beginPath();
+                        this.ctx.arc(char.x + 50, char.y + 60, 12, 0, Math.PI);
+                        this.ctx.stroke();
+                        break;
+                    case 'hot':
+                        this.ctx.fillStyle = '#FF0000';
+                        this.ctx.beginPath();
+                        this.ctx.arc(char.x + 50, char.y + 65, 6, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+                    default:
+                        this.ctx.fillRect(char.x + 45, char.y + 65, 10, 2);
+                }
+                
+                // 혀 (뜨거울 때)
+                if (char.tongueOut) {
+                    this.ctx.fillStyle = '#FF69B4';
+                    this.ctx.fillRect(char.x + 48, char.y + 70, 4, 10);
+                }
+                
+                // 땀방울
+                if (char.sweat) {
+                    this.ctx.fillStyle = '#87CEEB';
+                    this.ctx.beginPath();
+                    this.ctx.arc(char.x + 25, char.y + 30, 3, 0, Math.PI * 2);
+                    this.ctx.arc(char.x + 75, char.y + 35, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // 젓가락
+                this.ctx.strokeStyle = '#8B4513';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(char.x + 95, char.y + 120);
+                this.ctx.lineTo(char.x + 120, char.y + 80);
+                this.ctx.moveTo(char.x + 97, char.y + 122);
+                this.ctx.lineTo(char.x + 122, char.y + 82);
+                this.ctx.stroke();
+            }
+            
+            drawParticles() {
+                this.particles.forEach(particle => {
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            drawHotEffects() {
+                this.hotEffects.forEach(effect => {
+                    this.ctx.fillStyle = effect.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(effect.x, effect.y, effect.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+            
+            updateUI() {
+                document.getElementById('noodleCount').textContent = Math.ceil(this.noodleAmount);
+                document.getElementById('scoreDisplay').textContent = this.score;
+                document.getElementById('comboDisplay').textContent = this.combo;
+                
+                // 온도 게이지
+                const tempFill = document.getElementById('tempFill');
+                tempFill.style.width = this.ramenTemperature + '%';
+                
+                // 후루룩 게이지
+                const slurpFill = document.getElementById('slurpFill');
+                slurpFill.style.width = this.slurpPower + '%';
+            }
+            
+            updateSensorUI() {
+                const status = this.sensorData.connected ? '📱 센서 연결됨' : '📱 센서 연결 대기중...';
+                document.getElementById('sensorConnection').textContent = status;
+                document.getElementById('tiltAngle').textContent = Math.round(this.sensorData.tilt);
+                
+                let distanceText = '멀어요';
+                if (this.sensorData.distance === 'near') distanceText = '가까워요! 후루룩~';
+                else if (this.sensorData.distance === 'medium') distanceText = '적당해요';
+                
+                document.getElementById('phoneDistance').textContent = distanceText;
+            }
+            
+            showGameOverScreen() {
+                let resultText = '';
+                if (this.score >= 1000) {
+                    resultText = '🏆 라면 마스터! 완벽해요!';
+                } else if (this.score >= 500) {
+                    resultText = '😋 맛있게 드셨네요!';
+                } else if (this.score >= 200) {
+                    resultText = '🙂 괜찮게 드셨어요!';
+                } else {
+                    resultText = '😅 다음엔 더 조심히 드세요!';
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('maxCombo').textContent = this.maxCombo;
+                document.getElementById('slurpCount').textContent = this.slurpCount;
+                document.getElementById('gameResult').textContent = resultText;
+                
+                document.getElementById('gameOverScreen').style.display = 'flex';
+                console.log('🍜 라면 완주! 최종 점수:', this.score);
+            }
+        }
+
+        // 전역 함수들
+        function restartGame() {
+            location.reload();
+        }
+
+        function goToMain() {
+            window.location.href = '/';
+        }
+
+        // 게임 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🍜 라면 후루룩 게임 DOM 로드 완료');
+            
+            try {
+                window.ramenSlurpGame = new RamenSlurpGame();
+                console.log('✅ 라면 후루룩 게임 초기화 성공!');
+            } catch (error) {
+                console.error('❌ 게임 초기화 실패:', error);
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.innerHTML = 
+                        `<h1>🚫 게임 로드 실패</h1><p>오류: ${error.message}</p>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

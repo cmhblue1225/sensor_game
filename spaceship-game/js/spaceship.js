@@ -17,13 +17,13 @@ class Spaceship {
         this.angularVelocity = new THREE.Vector3(0, 0, 0);
         this.quaternion = new THREE.Quaternion();
         
-        // 우주선 속성 (안정성 향상)
-        this.maxSpeed = 30;           // 50 → 30 (최대 속도 감소)
-        this.thrustPower = 15;        // 40 → 15 (추진력 감소)
-        this.maneuverPower = 10;      // 25 → 10 (조종력 감소)
-        this.rotationSpeed = 1.5;     // 4 → 1.5 (회전 속도 감소)
-        this.drag = 0.95;             // 0.98 → 0.95 (더 강한 드래그)
-        this.angularDrag = 0.88;      // 0.92 → 0.88 (각속도 감쇠 증가)
+        // 우주선 속성 (반응성 대폭 개선)
+        this.maxSpeed = 60;           // 30 → 60 (최대 속도 증가)
+        this.thrustPower = 35;        // 15 → 35 (추진력 증가)
+        this.maneuverPower = 25;      // 10 → 25 (조종력 증가)
+        this.rotationSpeed = 3.5;     // 1.5 → 3.5 (회전 속도 증가)
+        this.drag = 0.98;             // 0.95 → 0.98 (드래그 감소)
+        this.angularDrag = 0.92;      // 0.88 → 0.92 (각속도 감쇠 감소)
         
         // 연료 시스템
         this.fuel = 100;
@@ -386,8 +386,8 @@ class Spaceship {
             this.angularVelocity.z += safeRoll * this.rotationSpeed * deltaTime;
         }
         
-        // 각속도 제한 (너무 빠른 회전 방지)
-        const maxAngularVelocity = 2.0;
+        // 각속도 제한 (반응성 우선 대폭 증가)
+        const maxAngularVelocity = 8.0; // 2.0 → 8.0
         this.angularVelocity.x = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.x));
         this.angularVelocity.y = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.y));
         this.angularVelocity.z = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, this.angularVelocity.z));
@@ -416,8 +416,8 @@ class Spaceship {
                 (this.filterValue(gameInput.thrust) || 0) * this.thrustPower
             );
             
-            // 추진력 제한 (너무 강한 가속 방지)
-            const maxAcceleration = 20;
+            // 추진력 제한 (반응성 우선 대폭 증가)
+            const maxAcceleration = 80; // 20 → 80
             if (localAcceleration.length() > maxAcceleration) {
                 localAcceleration.normalize().multiplyScalar(maxAcceleration);
             }

@@ -134,6 +134,10 @@ class SpaceshipGame {
         // 센서 데이터 콜백
         this.sensorManager.onSensorData((gameInput, sensorData) => {
             this.updateSensorDisplay(sensorData);
+            // 게임 로직의 센서 UI 업데이트 호출
+            if (this.gameLogic) {
+                this.gameLogic.updateSensorUI(gameInput, sensorData);
+            }
         });
     }
     

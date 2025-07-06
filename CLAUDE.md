@@ -24,6 +24,52 @@
   - 센서 기반 우주선 조작
   - 실시간 3D 렌더링
 
+### 3. 센서 레이싱 게임 (racing-game/) - ✅ 완료
+- **2D 센서 기반 레이싱 게임**
+- **접속 경로**: `/racing-game` 또는 `/racing`
+- **주요 기능**:
+  - 센서 기반 자동차 조작
+  - AI 차량과의 경주
+  - 트랙 시스템 및 랩 타임
+  - 시뮬레이션 모드 (WASD/화살표 키)
+
+### 4. 센서 슈터 게임 (sensor-shooter-game/) - ✅ 완료
+- **센서 기반 슈팅 게임**
+- **접속 경로**: `/sensor-shooter-game` 또는 `/shooter`
+- **주요 기능**:
+  - 센서로 포탑 조준
+  - 무한 웨이브 적 시스템
+  - 투사체 물리
+  - 시뮬레이션 모드 (마우스/키보드)
+
+### 5. 센서 러너 게임 (runner-game/) - ✅ 완료
+- **무한 러너 게임**
+- **접속 경로**: `/runner-game` 또는 `/runner`
+- **주요 기능**:
+  - 센서 기반 좌우 이동
+  - 장애물 회피 시스템
+  - 무한 스크롤링
+  - 시뮬레이션 모드 (화살표 키)
+
+### 6. 허들 게임 (hurdle-game/) - ✅ 완료
+- **센서 기반 스포츠 게임**
+- **접속 경로**: `/hurdle-game` 또는 `/hurdle`
+- **주요 기능**:
+  - 센서로 허들 점프
+  - AI 플레이어와 경쟁
+  - 물리 기반 허들 시스템
+  - 시뮬레이션 모드 (스페이스바)
+
+### 7. 라면 후루룩 게임 (ramen-slurp-game/) - ✅ 완료
+- **센서 기반 개그 게임**
+- **접속 경로**: `/ramen-slurp-game` 또는 `/ramen`
+- **주요 기능**:
+  - 센서로 라면 후루룩 먹기
+  - 온도 관리 시스템 (너무 뜨거우면 혀 데임)
+  - 콤보 시스템 및 파티클 효과
+  - 캐릭터 표정 변화 및 말풍선
+  - 시뮬레이션 모드 (스페이스바)
+
 ## 시스템 구성
 
 ### WebSocket 서버 (sensor-websocket-server.js)
@@ -106,6 +152,11 @@ npm start
 ## 게임 접속 URL
 - 볼 굴리기 게임: http://localhost:8080/ball-game
 - 3D 우주선 게임: http://localhost:8080/game
+- 센서 레이싱 게임: http://localhost:8080/racing-game
+- 센서 슈터 게임: http://localhost:8080/sensor-shooter-game
+- 센서 러너 게임: http://localhost:8080/runner-game
+- 허들 게임: http://localhost:8080/hurdle-game
+- 라면 후루룩 게임: http://localhost:8080/ramen-slurp-game
 - 센서 대시보드: http://localhost:8080/sensor-dashboard.html
 - 센서 클라이언트: http://localhost:8080/sensor-client.html
 
