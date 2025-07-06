@@ -32,6 +32,8 @@ function createRequestHandler() {
             filePath = path.join(__dirname, 'racing-game', 'index.html');
         } else if (req.url === '/hurdle-game') {
             filePath = path.join(__dirname, 'hurdle-game', 'index.html');
+        } else if (req.url === '/sensor-shooter-game') {
+            filePath = path.join(__dirname, 'sensor-shooter-game', 'index.html');
         } else if (req.url.startsWith('/spaceship-game/')) {
             // 우주선 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/spaceship-game/'.length);
@@ -48,6 +50,10 @@ function createRequestHandler() {
             // 허들 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/hurdle-game/'.length);
             filePath = path.join(__dirname, 'hurdle-game', relativePath);
+        } else if (req.url.startsWith('/sensor-shooter-game/')) {
+            // 센서 슈터 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/sensor-shooter-game/'.length);
+            filePath = path.join(__dirname, 'sensor-shooter-game', relativePath);
         } else if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/assets/')) {
             // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (기존 호환성 유지)
             filePath = path.join(__dirname, 'spaceship-game', req.url.substring(1));
