@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🥴 비틀비틀 귀가 챌린지</title>
+    <link rel="stylesheet" href="/staggering-home-game/css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="ui-overlay">
+            <div id="sensorConnection">📡 센서 연결 대기중...</div>
+            <div>좌우 (γ): <span id="tiltX">0</span></div>
+            <div>앞뒤 (β): <span id="tiltY">0</span></div>
+            <div>가속도: <span id="accel">0</span></div>
+            <div id="message"></div>
+        </div>
+
+        <a href="/" class="back-to-main">🏠 메인으로</a>
+
+        <div id="loadingScreen">
+            <h1>🥴 비틀비틀 귀가 챌린지</h1>
+            <p>집까지 무사히 도착하세요!</p>
+            <p>센서 연결을 기다리는 중...</p>
+        </div>
+
+        <div id="gameOverScreen">
+            <h1 id="gameOverMessage"></h1>
+            <p>걸린 시간: <span id="timeTaken">0</span>초</p>
+            <button onclick="restartGame()">다시 도전</button>
+        </div>
+    </div>
+
+    <script src="/staggering-home-game/js/sensorManager.js"></script>
+    <script src="/staggering-home-game/js/main.js"></script>
+    <script>
+        function restartGame() {
+            location.reload();
+        }
+
+        function goToMain() {
+            window.location.href = '/';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.game = new StaggeringHomeGame();
+        });
+    </script>
+</body>
+</html>

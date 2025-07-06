@@ -70,6 +70,17 @@
   - 캐릭터 표정 변화 및 말풍선
   - 시뮬레이션 모드 (스페이스바)
 
+### 8. 비틀비틀 귀가 게임 (staggering-home-game/) - ✅ 완료
+- **센서 기반 어드벤처 게임**
+- **접속 경로**: `/staggering-home-game` 또는 `/staggering`
+- **주요 기능**:
+  - 취한 상태로 집까지 안전하게 귀가
+  - 5단계 스테이지 (골목길 → 번화가 → 주택가 → 공원 → 마지막 고비)
+  - 취함 수치 관리 시스템 (0-100)
+  - 비틀거림 효과 및 장애물 회피
+  - 흔들기 액션으로 정신 차리기
+  - 시뮬레이션 모드 (WASD + 스페이스바)
+
 ## 시스템 구성
 
 ### WebSocket 서버 (sensor-websocket-server.js)
@@ -157,6 +168,7 @@ npm start
 - 센서 러너 게임: http://localhost:8080/runner-game
 - 허들 게임: http://localhost:8080/hurdle-game
 - 라면 후루룩 게임: http://localhost:8080/ramen-slurp-game
+- 비틀비틀 귀가 게임: http://localhost:8080/staggering-home-game
 - 센서 대시보드: http://localhost:8080/sensor-dashboard.html
 - 센서 클라이언트: http://localhost:8080/sensor-client.html
 
