@@ -16,6 +16,13 @@
             <h1>🎮 Hurdle Game</h1>
             <p>게임을 준비하는 중...</p>
         </div>
+
+        <!-- 카운트다운 화면 -->
+        <div class="countdown-screen" id="countdownScreen">
+            <div class="countdown-number-container">
+                <span id="countdownNumber">3</span>
+            </div>
+        </div>
         
         <!-- 게임 캔버스 (필수) -->
         <canvas id="gameCanvas" width="1200" height="600"></canvas>
@@ -38,7 +45,8 @@
         <!-- 게임 오버 화면 (권장) -->
         <div class="game-over" id="gameOverScreen">
             <h2>🎮 게임 종료!</h2>
-            <p>최종 순위: <span id="finalRank">0</span></p>
+            <p>최종 순위</p>
+            <ol id="finalRankList"></ol>
             <button onclick="restartGame()">다시 시작</button>
             <button onclick="goToMain()">🏠 메인으로</button>
         </div>

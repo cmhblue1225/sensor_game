@@ -19,6 +19,9 @@ class HurdleGame {
         this.gameFinished = false;
         this.rank = 0;
 
+        this.countdown = 3; // Initial countdown value
+        this.countdownInterval = null;
+
         this.init();
     }
 
@@ -36,7 +39,27 @@ class HurdleGame {
         this.generateHurdles();
 
         document.getElementById('loadingScreen').style.display = 'none';
-        this.gameStarted = true; // Start game immediately after loading
+        this.startCountdown();
+    }
+
+    startCountdown() {
+        document.getElementById('countdownScreen').style.display = 'flex';
+        document.getElementById('countdownNumber').innerText = this.countdown;
+
+        this.countdownInterval = setInterval(() => {
+            this.countdown--;
+            if (this.countdown > 0) {
+                document.getElementById('countdownNumber').innerText = this.countdown;
+            } else if (this.countdown === 0) {
+                document.getElementById('countdownNumber').innerText = 'GO!';
+                document.getElementById('countdownNumber').classList.add('go-text');
+            } else {
+                clearInterval(this.countdownInterval);
+                document.getElementById('countdownScreen').style.display = 'none';
+                this.gameStarted = true;
+                console.log('게임 시작!');
+            }
+        }, 1000);
     }
 
     generateHurdles() {
@@ -88,7 +111,7 @@ class HurdleGame {
 
                     if (racer === this.player) {
                         this.gameFinished = true;
-                        this.showGameOverScreen();
+                        this.showGameOverScreen(this.allRacers.filter(r => r.finished).sort((a, b) => a.rank - b.rank));
                     }
                 }
             }
@@ -106,9 +129,51 @@ class HurdleGame {
 
         const cameraOffset = this.player.x - 150; // Keep player around x=150
 
-        // Draw ground
+        // Draw sky (background)
+        this.ctx.fillStyle = '#87CEEB'; // Sky blue
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw distant hills/mountains (simple shapes)
+        this.ctx.fillStyle = '#6B8E23'; // Olive green
+        this.ctx.beginPath();
+        this.ctx.moveTo(0 - cameraOffset * 0.1, 400);
+        this.ctx.bezierCurveTo(100 - cameraOffset * 0.1, 300, 300 - cameraOffset * 0.1, 350, 400 - cameraOffset * 0.1, 400);
+        this.ctx.bezierCurveTo(500 - cameraOffset * 0.1, 300, 700 - cameraOffset * 0.1, 350, 800 - cameraOffset * 0.1, 400);
+        this.ctx.lineTo(this.canvas.width, 400);
+        this.ctx.lineTo(this.canvas.width, this.canvas.height);
+        this.ctx.lineTo(0, this.canvas.height);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // Draw clouds (simple circles, moving slower than foreground)
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        const cloudSpeed = 0.05; // Slower than player
+        this.ctx.beginPath();
+        this.ctx.arc(100 - cameraOffset * cloudSpeed, 100, 40, 0, Math.PI * 2);
+        this.ctx.arc(150 - cameraOffset * cloudSpeed, 80, 50, 0, Math.PI * 2);
+        this.ctx.arc(200 - cameraOffset * cloudSpeed, 110, 45, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.beginPath();
+        this.ctx.arc(500 - cameraOffset * cloudSpeed, 150, 60, 0, Math.PI * 2);
+        this.ctx.arc(560 - cameraOffset * cloudSpeed, 130, 40, 0, Math.PI * 2);
+        this.ctx.arc(620 - cameraOffset * cloudSpeed, 160, 55, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Draw ground (track)
         this.ctx.fillStyle = '#5cb85c';
         this.ctx.fillRect(0, 500, this.canvas.width, 100);
+
+        // Draw track lanes
+        this.ctx.strokeStyle = 'white';
+        this.ctx.lineWidth = 2;
+        const laneHeight = 30;
+        for (let i = 0; i < 3; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 500 + (i + 1) * laneHeight);
+            this.ctx.lineTo(this.canvas.width, 500 + (i + 1) * laneHeight);
+            this.ctx.stroke();
+        }
 
         // Draw finish line
         this.ctx.fillStyle = 'white';
@@ -130,9 +195,16 @@ class HurdleGame {
         document.getElementById('distanceDisplay').innerText = Math.floor(this.player.distance);
     }
 
-    showGameOverScreen() {
+    showGameOverScreen(finalRanks) {
         document.getElementById('gameOverScreen').style.display = 'flex';
-        document.getElementById('finalRank').innerText = this.player.rank;
+        
+        const rankList = document.getElementById('finalRankList');
+        rankList.innerHTML = '';
+        finalRanks.forEach(racer => {
+            const listItem = document.createElement('li');
+            listItem.innerText = `${racer.rank}위: ${racer.color} 선수`;
+            rankList.appendChild(listItem);
+        });
     }
 
     setupEventListeners() {
