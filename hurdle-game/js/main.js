@@ -193,6 +193,31 @@ class HurdleGame {
     updateUI() {
         document.getElementById('rankDisplay').innerText = this.player.rank === 0 ? '-' : this.player.rank;
         document.getElementById('distanceDisplay').innerText = Math.floor(this.player.distance);
+
+        // Update racer track overview
+        const racerMarkersContainer = document.getElementById('racerMarkers');
+        if (racerMarkersContainer) {
+            // Clear existing markers
+            racerMarkersContainer.innerHTML = '';
+            console.log('racerMarkersContainer found.');
+
+            this.allRacers.forEach(racer => {
+                const marker = document.createElement('div');
+                marker.className = 'racer-marker';
+                marker.style.backgroundColor = racer.color;
+
+                // Calculate position based on distance relative to finish line
+                const trackLength = this.finishLineX; // Assuming track starts at 0
+                let positionPercentage = (racer.distance / trackLength) * 100;
+                positionPercentage = Math.max(0, Math.min(100, positionPercentage)); // Clamp between 0 and 100
+
+                marker.style.left = `${positionPercentage}%`;
+                racerMarkersContainer.appendChild(marker);
+                console.log(`Racer ${racer.color} marker created at ${positionPercentage}%`);
+            });
+        } else {
+            console.log('racerMarkersContainer not found!');
+        }
     }
 
     showGameOverScreen(finalRanks) {

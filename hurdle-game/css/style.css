@@ -221,3 +221,45 @@ canvas {
     line-height: 1.5;
     z-index: 100;
 }
+
+/* 레이서 위치 바 */
+.racer-track-overview {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%; /* Adjust width as needed */
+    height: 40px; /* Increased height for visibility */
+    background-color: lime; /* Changed to lime for testing visibility */
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.racer-track-overview .track-line {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.racer-markers {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.racer-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
