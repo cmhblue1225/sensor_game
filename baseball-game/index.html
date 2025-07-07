@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 센서 야구 게임</title>
+    <link rel="stylesheet" href="/baseball-game/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 3D 캔버스 -->
+        <div id="canvasContainer"></div>
+        
+        <!-- 게임 UI 오버레이 -->
+        <div id="gameUI">
+            <!-- 점수판 -->
+            <div id="scoreBoard">
+                <div class="score-item">
+                    <span class="label">투구</span>
+                    <span id="pitchCount">1/10</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">점수</span>
+                    <span id="totalScore">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">연속타격</span>
+                    <span id="hitStreak">0</span>
+                </div>
+            </div>
+            
+            <!-- 게임 상태 표시 -->
+            <div id="gameStatus">
+                <div id="pitchInfo">투구 준비 중...</div>
+                <div id="lastHitInfo"></div>
+            </div>
+            
+            <!-- 센서 연결 상태 -->
+            <div id="sensorStatus">
+                <div class="sensor-indicator">
+                    <span class="status-dot" id="connectionStatus"></span>
+                    <span id="connectionText">센서 연결 대기 중</span>
+                </div>
+                <div class="sensor-data">
+                    <div>X: <span id="sensorX">0</span></div>
+                    <div>Y: <span id="sensorY">0</span></div>
+                    <div>Z: <span id="sensorZ">0</span></div>
+                </div>
+            </div>
+            
+            <!-- 게임 컨트롤 -->
+            <div id="gameControls">
+                <button id="startButton" class="game-btn">게임 시작</button>
+                <button id="resetButton" class="game-btn">다시하기</button>
+                <button id="calibrateButton" class="game-btn">센서 보정</button>
+            </div>
+            
+            <!-- 타격 피드백 -->
+            <div id="hitFeedback" class="feedback-popup"></div>
+            
+            <!-- 시뮬레이션 모드 안내 -->
+            <div id="simulationMode">
+                <h3>시뮬레이션 모드</h3>
+                <p>센서가 연결되지 않았습니다</p>
+                <p><strong>마우스 조작:</strong> 드래그하여 배트 스윙</p>
+                <p><strong>스페이스바:</strong> 스윙 실행</p>
+                <p><strong>R키:</strong> 리셋</p>
+            </div>
+        </div>
+        
+        <!-- 게임 결과 모달 -->
+        <div id="gameResultModal" class="modal">
+            <div class="modal-content">
+                <h2>게임 결과</h2>
+                <div id="finalScore">
+                    <div class="result-item">
+                        <span>총 점수:</span>
+                        <span id="finalTotalScore">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>타격 성공:</span>
+                        <span id="finalHits">0/10</span>
+                    </div>
+                    <div class="result-item">
+                        <span>최고 연속타격:</span>
+                        <span id="finalBestStreak">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>평균 타격력:</span>
+                        <span id="finalAvgPower">0</span>
+                    </div>
+                </div>
+                <div class="result-grade">
+                    <span id="gradeText">등급: </span>
+                    <span id="gradeValue">D</span>
+                </div>
+                <button id="playAgainButton" class="game-btn">다시 플레이</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게임 스크립트 -->
+    <script src="/baseball-game/js/sensorManager.js"></script>
+    <script src="/baseball-game/js/baseballEngine.js"></script>
+    <script src="/baseball-game/js/batController.js"></script>
+    <script src="/baseball-game/js/ballPhysics.js"></script>
+    <script src="/baseball-game/js/pitchingSystem.js"></script>
+    <script src="/baseball-game/js/collisionDetector.js"></script>
+    <script src="/baseball-game/js/scoringSystem.js"></script>
+    <script src="/baseball-game/js/main.js"></script>
+</body>
+</html>

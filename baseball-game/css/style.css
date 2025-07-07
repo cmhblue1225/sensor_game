@@ -1,0 +1,368 @@
+/* 3D 센서 야구 게임 스타일 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    overflow: hidden;
+    user-select: none;
+}
+
+#gameContainer {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+#canvasContainer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#gameUI {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* 점수판 */
+#scoreBoard {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #4CAF50;
+    pointer-events: auto;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    min-width: 150px;
+}
+
+.score-item:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+/* 게임 상태 */
+#gameStatus {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #FF9800;
+    pointer-events: auto;
+}
+
+#pitchInfo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FF9800;
+    margin-bottom: 10px;
+}
+
+#lastHitInfo {
+    font-size: 14px;
+    color: #FFC107;
+}
+
+/* 센서 상태 */
+#sensorStatus {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #2196F3;
+    pointer-events: auto;
+}
+
+.sensor-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: #f44336;
+    transition: background-color 0.3s;
+}
+
+.status-dot.connected {
+    background: #4CAF50;
+}
+
+.sensor-data {
+    display: flex;
+    gap: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+/* 게임 컨트롤 */
+#gameControls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.game-btn {
+    padding: 12px 20px;
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.game-btn:active {
+    transform: translateY(0);
+}
+
+.game-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#resetButton {
+    background: linear-gradient(45deg, #FF9800, #f57c00);
+}
+
+#calibrateButton {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+}
+
+/* 타격 피드백 */
+#hitFeedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: all 0.5s;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#hitFeedback.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+#hitFeedback.hit {
+    color: #4CAF50;
+}
+
+#hitFeedback.miss {
+    color: #f44336;
+}
+
+#hitFeedback.perfect {
+    color: #FFD700;
+    text-shadow: 0 0 20px #FFD700;
+}
+
+/* 시뮬레이션 모드 */
+#simulationMode {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    background: rgba(255, 152, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 250px;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#simulationMode.show {
+    opacity: 1;
+}
+
+#simulationMode h3 {
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+#simulationMode p {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* 게임 결과 모달 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #4CAF50;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content h2 {
+    margin-bottom: 30px;
+    color: #4CAF50;
+    font-size: 28px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.result-item span:first-child {
+    color: #FFC107;
+    font-weight: bold;
+}
+
+.result-grade {
+    margin: 30px 0;
+    font-size: 24px;
+}
+
+#gradeValue {
+    font-size: 48px;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 0 0 20px #FFD700;
+}
+
+#playAgainButton {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 16px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    #scoreBoard,
+    #gameStatus,
+    #sensorStatus {
+        position: relative;
+        margin: 10px;
+        display: inline-block;
+    }
+    
+    #gameUI {
+        padding: 10px;
+    }
+    
+    .game-btn {
+        padding: 10px 15px;
+        font-size: 12px;
+    }
+    
+    #simulationMode {
+        position: relative;
+        transform: none;
+        margin: 10px;
+        display: none;
+    }
+}
+
+/* 애니메이션 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* 로딩 애니메이션 */
+.loading {
+    opacity: 0.7;
+}
+
+.loading::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}

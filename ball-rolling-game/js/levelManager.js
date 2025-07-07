@@ -193,253 +193,318 @@ class LevelManager {
     }
     
     /**
-     * 레벨 6: 원형 트랙
+     * 레벨 6: 정밀 조작
      */
     generateLevel6() {
         return {
-            name: "레벨 6: 원형 트랙",
-            startX: 100,
-            startY: 300,
+            name: "레벨 6: 정밀 조작",
+            startX: 80,
+            startY: this.canvasHeight - 80,
             obstacles: [
-                // 원형 트랙을 만드는 장애물들
-                { x: 200, y: 150, width: 300, height: 20 },  // 상단
-                { x: 200, y: 430, width: 300, height: 20 },  // 하단
-                { x: 180, y: 170, width: 20, height: 260 },  // 왼쪽
-                { x: 500, y: 170, width: 20, height: 260 },  // 오른쪽
+                // 시작 플랫폼
+                { x: 50, y: this.canvasHeight - 50, width: 100, height: 20 },
                 
-                // 내부 원형 장애물
-                { x: 280, y: 230, width: 140, height: 20 },  // 내부 상단
-                { x: 280, y: 350, width: 140, height: 20 },  // 내부 하단
-                { x: 260, y: 250, width: 20, height: 100 },  // 내부 왼쪽
-                { x: 420, y: 250, width: 20, height: 100 },  // 내부 오른쪽
+                // 좁은 통로 시스템 - 정밀한 조작 요구
+                { x: 200, y: this.canvasHeight - 200, width: 15, height: 150 },  // 좁은 통로 입구 왼쪽
+                { x: 280, y: this.canvasHeight - 200, width: 15, height: 150 },  // 좁은 통로 입구 오른쪽
+                { x: 215, y: this.canvasHeight - 200, width: 65, height: 15 },   // 좁은 통로 상단
+                { x: 215, y: this.canvasHeight - 65, width: 65, height: 15 },    // 좁은 통로 하단
                 
-                // 진입/출구 통로
-                { x: 50, y: 280, width: 130, height: 20 },   // 진입로 상단
-                { x: 50, y: 320, width: 130, height: 20 },   // 진입로 하단
-                { x: 520, y: 280, width: 130, height: 20 },  // 출구로 상단
-                { x: 520, y: 320, width: 130, height: 20 }   // 출구로 하단
+                // 지그재그 경로
+                { x: 350, y: this.canvasHeight - 180, width: 120, height: 15 },  // 지그재그 1
+                { x: 400, y: this.canvasHeight - 140, width: 120, height: 15 },  // 지그재그 2
+                { x: 350, y: this.canvasHeight - 100, width: 120, height: 15 },  // 지그재그 3
+                
+                // 정밀 점프 구간
+                { x: 550, y: this.canvasHeight - 80, width: 40, height: 15 },    // 작은 플랫폼 1
+                { x: 630, y: this.canvasHeight - 120, width: 40, height: 15 },   // 작은 플랫폼 2
+                { x: 710, y: this.canvasHeight - 90, width: 40, height: 15 },    // 작은 플랫폼 3
+                
+                // 최종 도달 구간
+                { x: 780, y: this.canvasHeight - 150, width: 60, height: 15 },   // 최종 플랫폼
+                
+                // 방해 기둥들
+                { x: 320, y: this.canvasHeight - 250, width: 12, height: 50 },   // 방해 기둥 1
+                { x: 450, y: this.canvasHeight - 160, width: 12, height: 50 },   // 방해 기둥 2
+                { x: 600, y: this.canvasHeight - 200, width: 12, height: 50 }    // 방해 기둥 3
             ],
             goals: [
-                { x: 700, y: 300, radius: 25 } // 출구 끝의 목표
+                { x: 810, y: this.canvasHeight - 200, radius: 25 } // 정밀하게 도달해야 하는 목표
             ],
             holes: [
-                { x: 350, y: 200, radius: 18 }, // 상단 트랙의 함정
-                { x: 230, y: 300, radius: 16 }, // 왼쪽 커브의 함정
-                { x: 470, y: 300, radius: 16 }, // 오른쪽 커브의 함정
-                { x: 350, y: 400, radius: 18 }, // 하단 트랙의 함정
-                { x: 580, y: 300, radius: 14 }  // 출구 근처의 함정
+                { x: 247, y: this.canvasHeight - 130, radius: 12 }, // 좁은 통로 내부 함정
+                { x: 375, y: this.canvasHeight - 120, radius: 14 }, // 지그재그 함정 1
+                { x: 425, y: this.canvasHeight - 160, radius: 14 }, // 지그재그 함정 2
+                { x: 570, y: this.canvasHeight - 50, radius: 13 },  // 점프 구간 함정 1
+                { x: 650, y: this.canvasHeight - 90, radius: 13 },  // 점프 구간 함정 2
+                { x: 730, y: this.canvasHeight - 60, radius: 13 }   // 점프 구간 함정 3
             ]
         };
     }
     
     /**
-     * 레벨 7: 다이아몬드 미로
+     * 레벨 7: 시간 압박
      */
     generateLevel7() {
         return {
-            name: "레벨 7: 다이아몬드 미로",
-            startX: 50,
-            startY: 300,
+            name: "레벨 7: 시간 압박",
+            startX: 100,
+            startY: this.canvasHeight - 100,
             obstacles: [
-                // 다이아몬드 모양의 미로 구조
-                // 외부 다이아몬드
-                { x: 100, y: 280, width: 200, height: 20 },  // 왼쪽 상단
-                { x: 100, y: 320, width: 200, height: 20 },  // 왼쪽 하단
-                { x: 400, y: 280, width: 200, height: 20 },  // 오른쪽 상단
-                { x: 400, y: 320, width: 200, height: 20 },  // 오른쪽 하단
-                { x: 280, y: 100, width: 20, height: 200 },  // 상단 왼쪽
-                { x: 320, y: 100, width: 20, height: 200 },  // 상단 오른쪽
-                { x: 280, y: 400, width: 20, height: 200 },  // 하단 왼쪽
-                { x: 320, y: 400, width: 20, height: 200 },  // 하단 오른쪽
+                // 시작 플랫폼
+                { x: 50, y: this.canvasHeight - 50, width: 120, height: 20 },
                 
-                // 내부 복잡한 경로
-                { x: 180, y: 200, width: 140, height: 15 },  // 내부 상단
-                { x: 180, y: 385, width: 140, height: 15 },  // 내부 하단
-                { x: 480, y: 200, width: 140, height: 15 },  // 내부 상단 오른쪽
-                { x: 480, y: 385, width: 140, height: 15 },  // 내부 하단 오른쪽
-                { x: 200, y: 220, width: 15, height: 160 },  // 내부 왼쪽 세로
-                { x: 500, y: 220, width: 15, height: 160 },  // 내부 오른쪽 세로
+                // 빠른 경로 구성 - 연속된 플랫폼들
+                { x: 200, y: this.canvasHeight - 120, width: 80, height: 15 },   // 플랫폼 1
+                { x: 320, y: this.canvasHeight - 180, width: 80, height: 15 },   // 플랫폼 2
+                { x: 450, y: this.canvasHeight - 240, width: 80, height: 15 },   // 플랫폼 3
+                { x: 580, y: this.canvasHeight - 300, width: 80, height: 15 },   // 플랫폼 4
+                { x: 450, y: this.canvasHeight - 360, width: 80, height: 15 },   // 플랫폼 5 (다시 왼쪽으로)
+                { x: 320, y: this.canvasHeight - 420, width: 80, height: 15 },   // 플랫폼 6
+                { x: 200, y: this.canvasHeight - 480, width: 80, height: 15 },   // 플랫폼 7
+                { x: 350, y: this.canvasHeight - 540, width: 100, height: 20 },  // 최종 플랫폼
                 
-                // 중앙 장애물
-                { x: 350, y: 250, width: 20, height: 100 }   // 중앙 기둥
+                // 방해 요소들 - 빠른 이동을 방해하는 장애물
+                { x: 280, y: this.canvasHeight - 150, width: 20, height: 80 },   // 방해기둥 1
+                { x: 520, y: this.canvasHeight - 270, width: 20, height: 80 },   // 방해기둥 2
+                { x: 380, y: this.canvasHeight - 390, width: 20, height: 80 },   // 방해기둥 3
+                { x: 150, y: this.canvasHeight - 450, width: 20, height: 80 },   // 방해기둥 4
+                
+                // 경로 제한 벽들
+                { x: 0, y: 0, width: 20, height: this.canvasHeight },            // 왼쪽 벽
+                { x: 780, y: 0, width: 20, height: this.canvasHeight },          // 오른쪽 벽
+                { x: 20, y: 0, width: 760, height: 20 },                        // 상단 벽
+                { x: 20, y: this.canvasHeight - 20, width: 760, height: 20 }    // 하단 벽
             ],
             goals: [
-                { x: 700, y: 300, radius: 25 } // 출구
+                { x: 400, y: this.canvasHeight - 590, radius: 30 } // 최상단 목표
             ],
             holes: [
-                { x: 150, y: 300, radius: 18 }, // 입구 근처
-                { x: 250, y: 150, radius: 15 }, // 상단 경로
-                { x: 250, y: 450, radius: 15 }, // 하단 경로
-                { x: 450, y: 250, radius: 16 }, // 중간 경로
-                { x: 550, y: 150, radius: 15 }, // 상단 오른쪽
-                { x: 550, y: 450, radius: 15 }, // 하단 오른쪽
-                { x: 360, y: 180, radius: 14 }, // 중앙 상단
-                { x: 360, y: 420, radius: 14 }  // 중앙 하단
+                { x: 240, y: this.canvasHeight - 90, radius: 16 },  // 첫 번째 점프 함정
+                { x: 360, y: this.canvasHeight - 150, radius: 16 }, // 두 번째 점프 함정
+                { x: 490, y: this.canvasHeight - 210, radius: 16 }, // 세 번째 점프 함정
+                { x: 620, y: this.canvasHeight - 270, radius: 16 }, // 네 번째 점프 함정
+                { x: 490, y: this.canvasHeight - 330, radius: 16 }, // 다섯 번째 점프 함정
+                { x: 360, y: this.canvasHeight - 390, radius: 16 }, // 여섯 번째 점프 함정
+                { x: 240, y: this.canvasHeight - 450, radius: 16 }, // 일곱 번째 점프 함정
+                { x: 300, y: this.canvasHeight - 510, radius: 14 }, // 최종 근처 함정 1
+                { x: 450, y: this.canvasHeight - 510, radius: 14 }  // 최종 근처 함정 2
             ]
         };
     }
     
     /**
-     * 레벨 8: 스프링 보드
+     * 레벨 8: 중력 변화
      */
     generateLevel8() {
         return {
-            name: "레벨 8: 스프링 보드",
+            name: "레벨 8: 중력 변화",
             startX: 100,
             startY: this.canvasHeight - 100,
             obstacles: [
-                // 스프링 보드처럼 보이는 구조들
-                { x: 50, y: this.canvasHeight - 50, width: 120, height: 20 },   // 시작 플랫폼
-                { x: 250, y: this.canvasHeight - 30, width: 60, height: 10 },   // 첫 번째 스프링보드
-                { x: 200, y: this.canvasHeight - 120, width: 80, height: 15 },  // 첫 번째 착지점
-                { x: 400, y: this.canvasHeight - 200, width: 80, height: 15 },  // 두 번째 착지점
-                { x: 480, y: this.canvasHeight - 40, width: 60, height: 10 },   // 두 번째 스프링보드
-                { x: 600, y: this.canvasHeight - 300, width: 80, height: 15 },  // 세 번째 착지점
-                { x: 350, y: this.canvasHeight - 380, width: 80, height: 15 },  // 네 번째 착지점
-                { x: 150, y: this.canvasHeight - 480, width: 100, height: 15 }, // 다섯 번째 착지점
-                { x: 500, y: this.canvasHeight - 550, width: 150, height: 20 }, // 최종 플랫폼
+                // 시작 구역 (일반 중력)
+                { x: 50, y: this.canvasHeight - 50, width: 150, height: 20 },
                 
-                // 방해 장애물들
-                { x: 320, y: this.canvasHeight - 160, width: 15, height: 80 },  // 중간 방해기둥
-                { x: 280, y: this.canvasHeight - 320, width: 15, height: 100 }, // 상단 방해기둥
-                { x: 450, y: this.canvasHeight - 420, width: 15, height: 120 }  // 고도 방해기둥
+                // 중력 변화 구역을 나타내는 경계들
+                // 구역 1: 낮은 중력 (위쪽)
+                { x: 250, y: this.canvasHeight - 300, width: 200, height: 15 },  // 바닥
+                { x: 230, y: this.canvasHeight - 320, width: 20, height: 320 },  // 왼쪽 벽
+                { x: 450, y: this.canvasHeight - 320, width: 20, height: 320 },  // 오른쪽 벽
+                { x: 250, y: this.canvasHeight - 320, width: 200, height: 15 },  // 천장
+                
+                // 구역 2: 강한 중력 (아래쪽)
+                { x: 500, y: this.canvasHeight - 150, width: 150, height: 15 },  // 바닥
+                { x: 480, y: this.canvasHeight - 200, width: 20, height: 200 },  // 왼쪽 벽
+                { x: 650, y: this.canvasHeight - 200, width: 20, height: 200 },  // 오른쪽 벽
+                { x: 500, y: this.canvasHeight - 200, width: 150, height: 15 },  // 천장
+                
+                // 구역 3: 역중력 (공중에 붙는 구역)
+                { x: 150, y: this.canvasHeight - 450, width: 200, height: 15 },  // 바닥
+                { x: 130, y: this.canvasHeight - 500, width: 20, height: 500 },  // 왼쪽 벽
+                { x: 350, y: this.canvasHeight - 500, width: 20, height: 500 },  // 오른쪽 벽
+                { x: 150, y: this.canvasHeight - 500, width: 200, height: 15 },  // 천장
+                
+                // 최종 구역: 일반 중력
+                { x: 650, y: this.canvasHeight - 400, width: 120, height: 15 },  // 최종 플랫폼
+                
+                // 연결 통로들
+                { x: 200, y: this.canvasHeight - 180, width: 80, height: 15 },   // 연결 통로 1
+                { x: 420, y: this.canvasHeight - 250, width: 80, height: 15 },   // 연결 통로 2
+                { x: 370, y: this.canvasHeight - 380, width: 80, height: 15 },   // 연결 통로 3
+                { x: 550, y: this.canvasHeight - 320, width: 80, height: 15 },   // 연결 통로 4
+                
+                // 방해 기둥들
+                { x: 320, y: this.canvasHeight - 280, width: 15, height: 60 },   // 중력 구역 내 기둥
+                { x: 570, y: this.canvasHeight - 180, width: 15, height: 60 },   // 강중력 구역 내 기둥
+                { x: 220, y: this.canvasHeight - 480, width: 15, height: 60 }    // 역중력 구역 내 기둥
             ],
             goals: [
-                { x: 575, y: this.canvasHeight - 600, radius: 30 } // 최상단 목표
+                { x: 710, y: this.canvasHeight - 450, radius: 30 } // 최종 목표
             ],
             holes: [
-                { x: 180, y: this.canvasHeight - 80, radius: 18 },  // 첫 번째 함정
-                { x: 350, y: this.canvasHeight - 160, radius: 16 }, // 두 번째 함정
-                { x: 530, y: this.canvasHeight - 120, radius: 20 }, // 세 번째 함정
-                { x: 420, y: this.canvasHeight - 260, radius: 15 }, // 네 번째 함정
-                { x: 200, y: this.canvasHeight - 350, radius: 17 }, // 다섯 번째 함정
-                { x: 380, y: this.canvasHeight - 440, radius: 14 }, // 여섯 번째 함정
-                { x: 450, y: this.canvasHeight - 520, radius: 16 }  // 최종 근처 함정
+                { x: 180, y: this.canvasHeight - 120, radius: 15 }, // 시작 구역 함정
+                { x: 350, y: this.canvasHeight - 270, radius: 16 }, // 낮은 중력 구역 함정
+                { x: 575, y: this.canvasHeight - 120, radius: 18 }, // 강한 중력 구역 함정
+                { x: 240, y: this.canvasHeight - 420, radius: 15 }, // 역중력 구역 함정
+                { x: 450, y: this.canvasHeight - 220, radius: 14 }, // 연결 통로 함정 1
+                { x: 600, y: this.canvasHeight - 290, radius: 14 }, // 연결 통로 함정 2
+                { x: 680, y: this.canvasHeight - 370, radius: 16 }  // 최종 근처 함정
             ]
         };
     }
     
     /**
-     * 레벨 9: 다중 목표 수집
+     * 레벨 9: 복합 도전
      */
     generateLevel9() {
         return {
-            name: "레벨 9: 다중 목표 수집",
-            startX: this.canvasWidth / 2,
-            startY: this.canvasHeight / 2,
+            name: "레벨 9: 복합 도전",
+            startX: 100,
+            startY: this.canvasHeight - 100,
             obstacles: [
-                // 중앙에서 사방으로 뻗어나가는 구조
-                { x: this.canvasWidth / 2 - 10, y: 0, width: 20, height: 200 },           // 북쪽 길
-                { x: this.canvasWidth / 2 - 10, y: 400, width: 20, height: 200 },         // 남쪽 길
-                { x: 0, y: this.canvasHeight / 2 - 10, width: 200, height: 20 },          // 서쪽 길
-                { x: 400, y: this.canvasHeight / 2 - 10, width: 400, height: 20 },        // 동쪽 길
+                // 1단계: 정밀 조작 구간
+                { x: 50, y: this.canvasHeight - 50, width: 100, height: 20 },          // 시작 플랫폼
+                { x: 200, y: this.canvasHeight - 120, width: 15, height: 80 },         // 좁은 통로 1
+                { x: 250, y: this.canvasHeight - 120, width: 15, height: 80 },         // 좁은 통로 2
+                { x: 215, y: this.canvasHeight - 120, width: 35, height: 10 },         // 좁은 통로 상단
                 
-                // 각 방향의 방어 구조물
-                { x: 150, y: 50, width: 100, height: 15 },   // 북서 장애물
-                { x: 550, y: 50, width: 100, height: 15 },   // 북동 장애물
-                { x: 150, y: 535, width: 100, height: 15 },  // 남서 장애물
-                { x: 550, y: 535, width: 100, height: 15 },  // 남동 장애물
+                // 2단계: 빠른 점프 구간
+                { x: 320, y: this.canvasHeight - 180, width: 50, height: 10 },         // 작은 플랫폼 1
+                { x: 410, y: this.canvasHeight - 220, width: 50, height: 10 },         // 작은 플랫폼 2
+                { x: 500, y: this.canvasHeight - 160, width: 50, height: 10 },         // 작은 플랫폼 3
+                { x: 590, y: this.canvasHeight - 240, width: 50, height: 10 },         // 작은 플랫폼 4
                 
-                // 대각선 경로 차단기
-                { x: 250, y: 150, width: 15, height: 100 },  // 북서 차단기
-                { x: 535, y: 150, width: 15, height: 100 },  // 북동 차단기
-                { x: 250, y: 350, width: 15, height: 100 },  // 남서 차단기
-                { x: 535, y: 350, width: 15, height: 100 },  // 남동 차단기
+                // 3단계: 복잡한 미로 구간
+                { x: 680, y: this.canvasHeight - 300, width: 120, height: 15 },        // 미로 입구
+                { x: 760, y: this.canvasHeight - 450, width: 15, height: 450 },        // 미로 오른쪽 벽
+                { x: 680, y: this.canvasHeight - 450, width: 15, height: 300 },        // 미로 왼쪽 벽
+                { x: 680, y: this.canvasHeight - 450, width: 80, height: 15 },         // 미로 상단
+                { x: 700, y: this.canvasHeight - 400, width: 40, height: 15 },         // 미로 중간 장애물 1
+                { x: 720, y: this.canvasHeight - 360, width: 40, height: 15 },         // 미로 중간 장애물 2
                 
-                // 중앙 보호 링
-                { x: 320, y: 220, width: 160, height: 15 },  // 중앙 상단
-                { x: 320, y: 365, width: 160, height: 15 },  // 중앙 하단
-                { x: 305, y: 235, width: 15, height: 130 },  // 중앙 왼쪽
-                { x: 480, y: 235, width: 15, height: 130 }   // 중앙 오른쪽
+                // 4단계: 수직 클라이밍 구간
+                { x: 580, y: this.canvasHeight - 500, width: 80, height: 15 },         // 클라이밍 시작
+                { x: 500, y: this.canvasHeight - 540, width: 60, height: 15 },         // 클라이밍 플랫폼 1
+                { x: 420, y: this.canvasHeight - 580, width: 60, height: 15 },         // 클라이밍 플랫폼 2
+                { x: 340, y: this.canvasHeight - 520, width: 60, height: 15 },         // 클라이밍 플랫폼 3
+                { x: 260, y: this.canvasHeight - 560, width: 60, height: 15 },         // 클라이밍 플랫폼 4
+                
+                // 5단계: 최종 정밀 구간
+                { x: 150, y: this.canvasHeight - 600, width: 80, height: 15 },         // 최종 플랫폼
+                { x: 100, y: this.canvasHeight - 650, width: 15, height: 50 },         // 최종 좁은 통로 1
+                { x: 160, y: this.canvasHeight - 650, width: 15, height: 50 },         // 최종 좁은 통로 2
+                { x: 115, y: this.canvasHeight - 650, width: 45, height: 10 },         // 최종 좁은 통로 상단
+                
+                // 방해 기둥들
+                { x: 380, y: this.canvasHeight - 200, width: 10, height: 40 },         // 점프 구간 방해기둥
+                { x: 730, y: this.canvasHeight - 380, width: 10, height: 30 },         // 미로 내부 기둥
+                { x: 460, y: this.canvasHeight - 560, width: 10, height: 40 },         // 클라이밍 구간 방해기둥
+                { x: 300, y: this.canvasHeight - 540, width: 10, height: 40 }          // 클라이밍 구간 방해기둥 2
             ],
             goals: [
-                { x: 100, y: 100, radius: 22 },  // 북서 목표
-                { x: 700, y: 100, radius: 22 },  // 북동 목표
-                { x: 100, y: 500, radius: 22 },  // 남서 목표
-                { x: 700, y: 500, radius: 22 },  // 남동 목표
-                { x: 400, y: 300, radius: 25 }   // 중앙 최종 목표 (모든 목표 수집 후)
+                { x: 137, y: this.canvasHeight - 700, radius: 25 } // 최상단 최종 목표
             ],
             holes: [
-                { x: 200, y: 200, radius: 16 },  // 북서 함정
-                { x: 600, y: 200, radius: 16 },  // 북동 함정
-                { x: 200, y: 400, radius: 16 },  // 남서 함정
-                { x: 600, y: 400, radius: 16 },  // 남동 함정
-                { x: 350, y: 250, radius: 12 },  // 중앙 상단 함정
-                { x: 350, y: 350, radius: 12 },  // 중앙 하단 함정
-                { x: 450, y: 250, radius: 12 },  // 중앙 상단 오른쪽 함정
-                { x: 450, y: 350, radius: 12 }   // 중앙 하단 오른쪽 함정
+                { x: 232, y: this.canvasHeight - 90, radius: 12 },  // 정밀 조작 구간 함정
+                { x: 345, y: this.canvasHeight - 150, radius: 14 }, // 점프 구간 함정 1
+                { x: 435, y: this.canvasHeight - 190, radius: 14 }, // 점프 구간 함정 2
+                { x: 525, y: this.canvasHeight - 130, radius: 14 }, // 점프 구간 함정 3
+                { x: 615, y: this.canvasHeight - 210, radius: 14 }, // 점프 구간 함정 4
+                { x: 720, y: this.canvasHeight - 330, radius: 15 }, // 미로 구간 함정 1
+                { x: 710, y: this.canvasHeight - 420, radius: 15 }, // 미로 구간 함정 2
+                { x: 530, y: this.canvasHeight - 510, radius: 16 }, // 클라이밍 구간 함정 1
+                { x: 450, y: this.canvasHeight - 550, radius: 16 }, // 클라이밍 구간 함정 2
+                { x: 370, y: this.canvasHeight - 490, radius: 16 }, // 클라이밍 구간 함정 3
+                { x: 290, y: this.canvasHeight - 530, radius: 16 }, // 클라이밍 구간 함정 4
+                { x: 190, y: this.canvasHeight - 570, radius: 15 }, // 최종 구간 함정 1
+                { x: 130, y: this.canvasHeight - 620, radius: 12 }  // 최종 구간 함정 2
             ]
         };
     }
     
     /**
-     * 레벨 10: 챔피언의 시련
+     * 레벨 10: 완벽한 실행
      */
     generateLevel10() {
         return {
-            name: "레벨 10: 챔피언의 시련",
-            startX: 100,
-            startY: this.canvasHeight - 100,
+            name: "레벨 10: 완벽한 실행",
+            startX: 80,
+            startY: this.canvasHeight - 80,
             obstacles: [
-                // 거대한 나선형 구조
-                // 외부 경계
-                { x: 50, y: 50, width: 700, height: 20 },   // 상단 경계
-                { x: 50, y: 50, width: 20, height: 500 },   // 왼쪽 경계  
-                { x: 730, y: 50, width: 20, height: 500 },  // 오른쪽 경계
-                { x: 50, y: 530, width: 700, height: 20 },  // 하단 경계
+                // 시작 플랫폼 - 작은 시작점
+                { x: 50, y: this.canvasHeight - 50, width: 60, height: 15 },
                 
-                // 나선형 미로 구조 - 중심으로 향하는 길
-                { x: 120, y: 120, width: 550, height: 20 }, // 첫 번째 링 상단
-                { x: 120, y: 460, width: 550, height: 20 }, // 첫 번째 링 하단  
-                { x: 120, y: 140, width: 20, height: 320 }, // 첫 번째 링 왼쪽
-                { x: 650, y: 140, width: 20, height: 200 }, // 첫 번째 링 오른쪽 (일부)
+                // 1구간: 극도로 정밀한 좁은 통로
+                { x: 150, y: this.canvasHeight - 120, width: 12, height: 100 },        // 좁은 통로 1
+                { x: 190, y: this.canvasHeight - 120, width: 12, height: 100 },        // 좁은 통로 2
+                { x: 162, y: this.canvasHeight - 120, width: 28, height: 8 },          // 좁은 통로 상단
                 
-                { x: 190, y: 190, width: 420, height: 20 }, // 두 번째 링 상단
-                { x: 190, y: 390, width: 420, height: 20 }, // 두 번째 링 하단
-                { x: 190, y: 210, width: 20, height: 180 }, // 두 번째 링 왼쪽
-                { x: 590, y: 210, width: 20, height: 110 }, // 두 번째 링 오른쪽 (일부)
+                // 2구간: 극한 정밀 점프 (매우 작은 플랫폼들)
+                { x: 250, y: this.canvasHeight - 150, width: 25, height: 8 },          // 미니 플랫폼 1
+                { x: 310, y: this.canvasHeight - 190, width: 25, height: 8 },          // 미니 플랫폼 2
+                { x: 370, y: this.canvasHeight - 230, width: 25, height: 8 },          // 미니 플랫폼 3
+                { x: 430, y: this.canvasHeight - 270, width: 25, height: 8 },          // 미니 플랫폼 4
+                { x: 490, y: this.canvasHeight - 310, width: 25, height: 8 },          // 미니 플랫폼 5
                 
-                { x: 260, y: 260, width: 280, height: 20 }, // 세 번째 링 상단
-                { x: 260, y: 320, width: 280, height: 20 }, // 세 번째 링 하단
-                { x: 260, y: 280, width: 20, height: 40 },  // 세 번째 링 왼쪽
-                { x: 520, y: 280, width: 20, height: 40 },  // 세 번째 링 오른쪽
+                // 3구간: 복잡한 지그재그 (완벽한 타이밍 필요)
+                { x: 550, y: this.canvasHeight - 280, width: 40, height: 8 },          // 지그재그 1
+                { x: 520, y: this.canvasHeight - 320, width: 40, height: 8 },          // 지그재그 2
+                { x: 580, y: this.canvasHeight - 360, width: 40, height: 8 },          // 지그재그 3
+                { x: 530, y: this.canvasHeight - 400, width: 40, height: 8 },          // 지그재그 4
+                { x: 590, y: this.canvasHeight - 440, width: 40, height: 8 },          // 지그재그 5
                 
-                // 최종 중앙 보스 방
-                { x: 330, y: 240, width: 140, height: 15 }, // 보스방 상단
-                { x: 330, y: 345, width: 140, height: 15 }, // 보스방 하단
-                { x: 315, y: 255, width: 15, height: 90 },  // 보스방 왼쪽
-                { x: 470, y: 255, width: 15, height: 50 },  // 보스방 오른쪽 (입구)
+                // 4구간: 극한 수직 클라이밍 (최소 실수 허용)
+                { x: 480, y: this.canvasHeight - 480, width: 35, height: 8 },          // 클라이밍 1
+                { x: 420, y: this.canvasHeight - 520, width: 35, height: 8 },          // 클라이밍 2
+                { x: 360, y: this.canvasHeight - 560, width: 35, height: 8 },          // 클라이밍 3
+                { x: 300, y: this.canvasHeight - 600, width: 35, height: 8 },          // 클라이밍 4
+                { x: 240, y: this.canvasHeight - 640, width: 35, height: 8 },          // 클라이밍 5
                 
-                // 추가 도전 요소들
-                { x: 500, y: 380, width: 15, height: 80 },  // 하단 기둥
-                { x: 280, y: 360, width: 15, height: 60 },  // 중간 기둥
-                { x: 420, y: 420, width: 60, height: 15 },  // 하단 가로막이
-                { x: 580, y: 340, width: 15, height: 120 }  // 오른쪽 세로막이
+                // 5구간: 최종 극한 정밀도 테스트
+                { x: 150, y: this.canvasHeight - 680, width: 50, height: 8 },          // 최종 중간 플랫폼
+                { x: 80, y: this.canvasHeight - 720, width: 10, height: 40 },          // 극한 좁은 통로 1
+                { x: 120, y: this.canvasHeight - 720, width: 10, height: 40 },         // 극한 좁은 통로 2
+                { x: 90, y: this.canvasHeight - 720, width: 30, height: 5 },           // 극한 좁은 통로 상단
+                
+                // 최종 도착 플랫폼
+                { x: 70, y: this.canvasHeight - 760, width: 70, height: 15 },          // 최종 플랫폼
+                
+                // 완벽함을 방해하는 극소 방해 기둥들
+                { x: 287, y: this.canvasHeight - 170, width: 6, height: 20 },          // 점프 구간 방해 1
+                { x: 347, y: this.canvasHeight - 210, width: 6, height: 20 },          // 점프 구간 방해 2
+                { x: 407, y: this.canvasHeight - 250, width: 6, height: 20 },          // 점프 구간 방해 3
+                { x: 467, y: this.canvasHeight - 290, width: 6, height: 20 },          // 점프 구간 방해 4
+                { x: 555, y: this.canvasHeight - 340, width: 6, height: 20 },          // 지그재그 구간 방해 1
+                { x: 525, y: this.canvasHeight - 380, width: 6, height: 20 },          // 지그재그 구간 방해 2
+                { x: 585, y: this.canvasHeight - 420, width: 6, height: 20 },          // 지그재그 구간 방해 3
+                { x: 450, y: this.canvasHeight - 500, width: 6, height: 20 },          // 클라이밍 구간 방해 1
+                { x: 390, y: this.canvasHeight - 540, width: 6, height: 20 },          // 클라이밍 구간 방해 2
+                { x: 330, y: this.canvasHeight - 580, width: 6, height: 20 },          // 클라이밍 구간 방해 3
+                { x: 270, y: this.canvasHeight - 620, width: 6, height: 20 }           // 클라이밍 구간 방해 4
             ],
             goals: [
-                // 단계별 목표들 - 순서대로 수집해야 함
-                { x: 680, y: 100, radius: 20 },  // 첫 번째 목표 (외곽)
-                { x: 150, y: 480, radius: 20 },  // 두 번째 목표 (왼쪽 하단)
-                { x: 580, y: 250, radius: 20 },  // 세 번째 목표 (중간 오른쪽)
-                { x: 220, y: 350, radius: 20 },  // 네 번째 목표 (중간 왼쪽)
-                { x: 400, y: 290, radius: 30 }   // 최종 보스 목표 (중앙)
+                { x: 105, y: this.canvasHeight - 810, radius: 20 } // 최상단 최종 목표 - 매우 정밀한 위치
             ],
             holes: [
-                // 전략적으로 배치된 함정들
-                { x: 300, y: 150, radius: 18 },  // 외곽 함정 1
-                { x: 500, y: 150, radius: 18 },  // 외곽 함정 2
-                { x: 200, y: 250, radius: 16 },  // 중간 함정 1
-                { x: 450, y: 180, radius: 16 },  // 중간 함정 2
-                { x: 350, y: 430, radius: 17 },  // 하단 함정 1
-                { x: 550, y: 430, radius: 17 },  // 하단 함정 2
-                { x: 180, y: 320, radius: 15 },  // 왼쪽 함정
-                { x: 620, y: 320, radius: 15 },  // 오른쪽 함정
-                { x: 320, y: 350, radius: 14 },  // 보스방 근처 함정 1
-                { x: 480, y: 230, radius: 14 },  // 보스방 근처 함정 2
-                { x: 280, y: 200, radius: 13 },  // 정밀 함정 1
-                { x: 520, y: 350, radius: 13 },  // 정밀 함정 2
-                { x: 160, y: 400, radius: 16 },  // 경로 함정 1
-                { x: 640, y: 200, radius: 16 }   // 경로 함정 2
+                // 극소 함정들 - 한 번의 실수도 용납하지 않음
+                { x: 176, y: this.canvasHeight - 90, radius: 8 },   // 좁은 통로 함정
+                { x: 275, y: this.canvasHeight - 120, radius: 10 }, // 점프 구간 함정 1
+                { x: 335, y: this.canvasHeight - 160, radius: 10 }, // 점프 구간 함정 2
+                { x: 395, y: this.canvasHeight - 200, radius: 10 }, // 점프 구간 함정 3
+                { x: 455, y: this.canvasHeight - 240, radius: 10 }, // 점프 구간 함정 4
+                { x: 515, y: this.canvasHeight - 280, radius: 10 }, // 점프 구간 함정 5
+                { x: 545, y: this.canvasHeight - 300, radius: 9 },  // 지그재그 함정 1
+                { x: 555, y: this.canvasHeight - 340, radius: 9 },  // 지그재그 함정 2
+                { x: 525, y: this.canvasHeight - 380, radius: 9 },  // 지그재그 함정 3
+                { x: 565, y: this.canvasHeight - 420, radius: 9 },  // 지그재그 함정 4
+                { x: 535, y: this.canvasHeight - 460, radius: 9 },  // 지그재그 함정 5
+                { x: 502, y: this.canvasHeight - 450, radius: 11 }, // 클라이밍 함정 1
+                { x: 442, y: this.canvasHeight - 490, radius: 11 }, // 클라이밍 함정 2
+                { x: 382, y: this.canvasHeight - 530, radius: 11 }, // 클라이밍 함정 3
+                { x: 322, y: this.canvasHeight - 570, radius: 11 }, // 클라이밍 함정 4
+                { x: 262, y: this.canvasHeight - 610, radius: 11 }, // 클라이밍 함정 5
+                { x: 175, y: this.canvasHeight - 650, radius: 10 }, // 최종 중간 함정
+                { x: 105, y: this.canvasHeight - 690, radius: 8 }   // 최종 극한 함정
             ]
         };
     }

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 게임 제목</title>
+    
+    <!-- 공통 CSS 로드 -->
+    <link rel="stylesheet" href="../shared/css/common.css">
+    
+    <!-- 게임별 CSS (선택사항) -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 메인 메뉴 버튼 (필수) -->
+        <a href="../index.html" class="back-to-main">🏠 메인으로</a>
+        
+        <!-- 로딩 화면 (필수) -->
+        <div class="loading" id="loadingScreen">
+            <h1>🎮 게임 제목</h1>
+            <p>게임을 준비하는 중...</p>
+            <div class="spinner"></div>
+        </div>
+        
+        <!-- 게임 캔버스 (필수) -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <!-- UI 오버레이 -->
+        <div class="ui-overlay">
+            <!-- 게임 정보 패널 -->
+            <div class="game-info">
+                <span>점수: <span id="scoreDisplay">0</span></span>
+                <span>레벨: <span id="levelDisplay">1</span></span>
+                <span>생명: <span id="livesDisplay">3</span></span>
+            </div>
+            
+            <!-- 센서 상태 (필수) -->
+            <div class="sensor-status">
+                <div id="sensorConnection">📡 센서 연결 대기중...</div>
+                <div class="sensor-data">
+                    <span>X: <span id="tiltX">0</span>°</span>
+                    <span>Y: <span id="tiltY">0</span>°</span>
+                </div>
+            </div>
+            
+            <!-- 기울기 시각화 (선택사항) -->
+            <div class="tilt-visualizer" id="tiltVisualizer">
+                <div class="tilt-indicator"></div>
+            </div>
+        </div>
+        
+        <!-- 게임 오버 화면 (권장) -->
+        <div class="game-over" id="gameOverScreen">
+            <h2>🎮 게임 종료!</h2>
+            <p>최종 점수: <span id="finalScore">0</span></p>
+            <button class="btn btn-primary" onclick="restartGame()">다시 시작</button>
+            <button class="btn btn-secondary" onclick="goToMain()">🏠 메인으로</button>
+        </div>
+        
+        <!-- 설정 모달 (선택사항) -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ 게임 설정</h3>
+                </div>
+                <div class="modal-body">
+                    <p>센서 감도</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="UIUtils.hideModal('settingsModal')">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 공통 라이브러리 로드 (순서 중요!) -->
+    <script src="../shared/js/MathUtils.js"></script>
+    <script src="../shared/js/ValidationUtils.js"></script>
+    <script src="../shared/js/GameConfig.js"></script>
+    <script src="../shared/js/UIUtils.js"></script>
+    <script src="../shared/js/BaseSensorManager.js"></script>
+    
+    <!-- 게임별 스크립트 로드 -->
+    <script src="js/YourGameSensorManager.js"></script>
+    <script src="js/gameEngine.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+        // 게임 초기화 스크립트
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎮 게임 로딩 시작');
+            
+            // 전역 함수 정의 (게임 허브 호환성)
+            window.restartGame = function() {
+                if (window.game) {
+                    window.game.restart();
+                }
+            };
+            
+            window.goToMain = function() {
+                window.location.href = '../index.html';
+            };
+            
+            // 게임 인스턴스 생성
+            try {
+                window.game = new YourGame();
+            } catch (error) {
+                console.error('게임 초기화 실패:', error);
+                UIUtils.showToast('게임 로딩 중 오류가 발생했습니다.', 'error');
+            }
+        });
+        
+        // 에러 핸들링
+        window.addEventListener('error', (event) => {
+            console.error('전역 오류:', event.error);
+            UIUtils.showToast('오류가 발생했습니다: ' + event.error.message, 'error');
+        });
+        
+        // 언로드 시 리소스 정리
+        window.addEventListener('beforeunload', () => {
+            if (window.game && typeof window.game.destroy === 'function') {
+                window.game.destroy();
+            }
+        });
+    </script>
+</body>
+</html>
+
+<!--
+사용법:
+1. 이 템플릿을 새로운 게임 폴더에 복사
+2. "YourGame", "게임 제목" 등을 실제 게임명으로 변경
+3. js/YourGameSensorManager.js에 게임별 센서 관리자 구현
+4. js/main.js에 메인 게임 클래스 구현
+5. css/style.css에 게임별 스타일 추가 (선택사항)
+
+주의사항:
+- shared 폴더의 파일들이 올바른 경로에 있는지 확인
+- 스크립트 로드 순서를 변경하지 말 것
+- 필수 요소들(gameCanvas, loadingScreen, sensorConnection)의 ID를 변경하지 말 것
+- restartGame(), goToMain() 함수는 반드시 구현할 것
+-->

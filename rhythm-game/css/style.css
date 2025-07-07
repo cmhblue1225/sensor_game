@@ -1,0 +1,917 @@
+/* 센서 리듬 게임 스타일 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    color: white;
+    overflow: hidden;
+    user-select: none;
+    position: relative;
+}
+
+/* 로딩 화면 */
+#loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#loadingScreen.active {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 센서 연결 상태 */
+#sensorConnection {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid #2196F3;
+    z-index: 100;
+}
+
+.sensor-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: #f44336;
+    transition: background-color 0.3s;
+}
+
+.status-dot.connected {
+    background: #4CAF50;
+}
+
+/* 메인으로 돌아가기 버튼 */
+.back-to-main {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid #4CAF50;
+    font-size: 14px;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.back-to-main:hover {
+    background: rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
+}
+
+/* 게임 캔버스 */
+#gameCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* 게임 컨테이너 */
+#gameContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+/* 화면 공통 */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* 메인 메뉴 */
+.menu-content {
+    text-align: center;
+    max-width: 400px;
+    padding: 40px 20px;
+}
+
+.game-title {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.menu-btn {
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.menu-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(45deg, #5dddd4, #54b09d);
+}
+
+.menu-btn:active {
+    transform: translateY(-1px);
+}
+
+/* 스테이지 선택 */
+.stage-select-content {
+    width: 90%;
+    max-width: 800px;
+    height: 80%;
+    padding: 20px;
+}
+
+.stage-select-content h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid #ccc;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.stages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.stage-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.stage-card:hover {
+    transform: translateY(-5px);
+    border-color: #4ecdc4;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stage-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.stage-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4ecdc4;
+    margin-bottom: 10px;
+}
+
+.stage-title {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.stage-artist {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.stage-difficulty {
+    display: inline-block;
+    padding: 5px 10px;
+    background: rgba(255, 107, 107, 0.3);
+    border-radius: 15px;
+    font-size: 0.8rem;
+}
+
+/* 게임 UI */
+#gameUI {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.top-ui {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: auto;
+}
+
+.score-info {
+    display: flex;
+    gap: 20px;
+}
+
+.score-item {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 15px;
+    border-radius: 20px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.score-item .label {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.score-item span:last-child {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4ecdc4;
+}
+
+.song-info {
+    text-align: right;
+    max-width: 300px;
+}
+
+#songTitle {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#songProgress {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#progressBar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+#progressBar::before {
+    content: '';
+    display: block;
+    height: 100%;
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    width: var(--progress, 0%);
+    transition: width 0.1s linear;
+}
+
+#timeDisplay {
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+}
+
+/* 리듬 트랙 */
+#rhythmTrack {
+    position: absolute;
+    bottom: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    height: 300px;
+    pointer-events: none;
+}
+
+.track-line {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, #4ecdc4 10%, #4ecdc4 90%, transparent 100%);
+    border-radius: 2px;
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+}
+
+.hit-zone {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, #4ecdc4 20%, #4ecdc4 80%, transparent 100%);
+    box-shadow: 0 0 10px rgba(78, 205, 196, 0.8);
+    animation: hit-line-pulse 2s infinite;
+}
+
+.hit-line-indicator {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    border: 3px solid #4ecdc4;
+    border-radius: 50%;
+    background: rgba(78, 205, 196, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse 2s infinite;
+}
+
+.hit-zone.active {
+    background: linear-gradient(90deg, transparent 0%, #ff6b6b 20%, #ff6b6b 80%, transparent 100%);
+    box-shadow: 0 0 15px rgba(255, 107, 107, 1.0);
+    animation: hit-line-flash 0.3s ease-out;
+}
+
+.hit-line-indicator.active {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.3);
+    animation: hit-pulse 0.3s ease-out;
+}
+
+.hit-indicator {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px currentColor;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    50% { transform: translateX(-50%) scale(1.05); opacity: 0.8; }
+}
+
+@keyframes hit-pulse {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.2); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes hit-line-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(78, 205, 196, 0.8); }
+    50% { opacity: 0.7; box-shadow: 0 0 20px rgba(78, 205, 196, 1.0); }
+}
+
+@keyframes hit-line-flash {
+    0% { box-shadow: 0 0 15px rgba(255, 107, 107, 1.0); }
+    50% { box-shadow: 0 0 30px rgba(255, 107, 107, 1.0); }
+    100% { box-shadow: 0 0 15px rgba(255, 107, 107, 1.0); }
+}
+
+.notes-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.rhythm-note {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, #ff6b6b 0%, #ff4757 100%);
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+    animation: note-fall linear;
+}
+
+.rhythm-note.perfect {
+    background: radial-gradient(circle, #ffd700 0%, #ffb347 100%);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+}
+
+@keyframes note-fall {
+    from {
+        bottom: 100%;
+        transform: translateX(-50%) scale(0.5);
+    }
+    to {
+        bottom: 50px;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+/* 하단 UI */
+.bottom-ui {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: auto;
+}
+
+.game-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #4ecdc4;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.control-btn:hover {
+    background: rgba(78, 205, 196, 0.2);
+    transform: scale(1.1);
+}
+
+.sensor-display {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* 판정 피드백 */
+#judgmentFeedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: all 0.5s;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#judgmentFeedback.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+#judgmentFeedback.perfect {
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700;
+}
+
+#judgmentFeedback.good {
+    color: #4ecdc4;
+    text-shadow: 0 0 20px #4ecdc4;
+}
+
+#judgmentFeedback.miss {
+    color: #ff4757;
+    text-shadow: 0 0 20px #ff4757;
+}
+
+/* 결과 화면 */
+.result-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 40px 20px;
+}
+
+.result-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #4ecdc4;
+}
+
+.final-score {
+    margin-bottom: 30px;
+}
+
+.score-label {
+    display: block;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.score-value {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700;
+}
+
+.result-details {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.result-item:last-child {
+    margin-bottom: 0;
+}
+
+.grade {
+    margin: 30px 0;
+    font-size: 1.5rem;
+}
+
+#gradeValue {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 20px #ffd700;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* 시뮬레이션 모드 안내 */
+.simulation-notice {
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    background: rgba(255, 152, 0, 0.9);
+    padding: 15px 20px;
+    border-radius: 10px;
+    max-width: 250px;
+    font-size: 0.9rem;
+    z-index: 50;
+    display: none;
+}
+
+.simulation-notice h3 {
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.simulation-notice p {
+    margin-bottom: 5px;
+}
+
+/* 스테이지 에디터 */
+.editor-content {
+    width: 95%;
+    height: 90%;
+    max-width: 1200px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.editor-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+}
+
+.editor-controls {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.file-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.file-btn {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.file-btn:hover {
+    background: linear-gradient(45deg, #5dddd4, #54b09d);
+    transform: translateY(-2px);
+}
+
+#audioFile {
+    display: none;
+}
+
+#stageTitle, #artistName {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+#stageTitle::placeholder, #artistName::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.editor-timeline {
+    margin-bottom: 20px;
+}
+
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.timeline-controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #4ecdc4;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.timeline-controls button:hover {
+    background: rgba(78, 205, 196, 0.2);
+}
+
+#timeSlider {
+    flex: 1;
+    min-width: 200px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.timeline {
+    height: 100px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ff6b6b;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.beats-container {
+    position: relative;
+    height: 100%;
+}
+
+.beat-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #4ecdc4;
+    cursor: pointer;
+    border-radius: 1px;
+}
+
+.beat-marker:hover {
+    background: #ff6b6b;
+    width: 5px;
+}
+
+.editor-instructions {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.editor-instructions h3 {
+    margin-bottom: 10px;
+    color: #4ecdc4;
+}
+
+.editor-instructions p {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.editor-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.editor-buttons button {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.editor-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .top-ui {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .score-info {
+        justify-content: center;
+    }
+    
+    .song-info {
+        text-align: center;
+        max-width: none;
+    }
+    
+    #rhythmTrack {
+        width: 95%;
+        bottom: 120px;
+    }
+    
+    .stages-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .file-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .timeline-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .editor-buttons {
+        flex-direction: column;
+    }
+    
+    .result-buttons {
+        flex-direction: column;
+    }
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(78, 205, 196, 0.7);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 205, 196, 1);
+}

@@ -40,6 +40,8 @@ function createRequestHandler() {
             filePath = path.join(__dirname, 'ramen-slurp-game', 'index.html');
         } else if (req.url === '/staggering-home-game' || req.url === '/staggering') {
             filePath = path.join(__dirname, 'staggering-home-game', 'index.html');
+        } else if (req.url === '/baseball-game' || req.url === '/baseball') {
+            filePath = path.join(__dirname, 'baseball-game', 'index.html');
         } else if (req.url.startsWith('/spaceship-game/')) {
             // 우주선 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/spaceship-game/'.length);
@@ -72,6 +74,16 @@ function createRequestHandler() {
             // 비틀비틀 귀가 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/staggering-home-game/'.length);
             filePath = path.join(__dirname, 'staggering-home-game', relativePath);
+        } else if (req.url.startsWith('/baseball-game/')) {
+            // 야구 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/baseball-game/'.length);
+            filePath = path.join(__dirname, 'baseball-game', relativePath);
+        } else if (req.url === '/rhythm-game' || req.url === '/rhythm') {
+            filePath = path.join(__dirname, 'rhythm-game', 'index.html');
+        } else if (req.url.startsWith('/rhythm-game/')) {
+            // 리듬 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/rhythm-game/'.length);
+            filePath = path.join(__dirname, 'rhythm-game', relativePath);
         } else if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/assets/')) {
             // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (우주선 게임 호환성 유지)
             filePath = path.join(__dirname, 'spaceship-game', req.url.substring(1));
@@ -504,6 +516,12 @@ server.listen(PORT, '0.0.0.0', () => {
         console.log(`     HTTPS: https://${localIP}:${HTTPS_PORT}/ball-game`);
     }
     console.log(`     HTTP: http://${localIP}:${PORT}/ball-game`);
+    
+    console.log(`   ⚾ 3D 센서 야구 게임:`);
+    if (httpsServer) {
+        console.log(`     HTTPS: https://${localIP}:${HTTPS_PORT}/baseball-game`);
+    }
+    console.log(`     HTTP: http://${localIP}:${PORT}/baseball-game`);
     
     console.log(`\n💬 채팅 (기존 기능):`);
     console.log(`   클라이언트: http://${localIP}:${PORT}/client.html`);

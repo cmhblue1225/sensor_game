@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 센서 리듬 게임</title>
+    <link rel="stylesheet" href="/rhythm-game/css/style.css">
+</head>
+<body>
+    <!-- 로딩 화면 -->
+    <div id="loadingScreen" class="active">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>🎵 센서 리듬 게임</h2>
+            <p>로딩 중...</p>
+        </div>
+    </div>
+
+    <!-- 센서 연결 상태 -->
+    <div id="sensorConnection">
+        <div class="sensor-indicator">
+            <span class="status-dot" id="connectionStatus"></span>
+            <span id="connectionText">센서 연결 확인 중...</span>
+        </div>
+    </div>
+
+    <!-- 메인으로 돌아가기 버튼 -->
+    <a href="../index.html" class="back-to-main">🏠 메인으로</a>
+
+    <!-- 게임 캔버스 -->
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="gameContainer">
+        <!-- 메인 메뉴 -->
+        <div id="mainMenu" class="screen">
+            <div class="menu-content">
+                <h1 class="game-title">🎵 센서 리듬 게임</h1>
+                <p class="game-subtitle">핸드폰을 흔들어서 리듬을 맞춰보세요!</p>
+                
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="playButton">게임 시작</button>
+                    <button class="menu-btn" id="stageSelectButton">스테이지 선택</button>
+                    <button class="menu-btn" id="editorButton">스테이지 에디터</button>
+                    <button class="menu-btn" id="settingsButton">설정</button>
+                </div>
+                
+                <div class="sensor-status">
+                    <div class="sensor-indicator">
+                        <span class="status-dot" id="connectionStatus"></span>
+                        <span id="connectionText">센서 연결 확인 중...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 스테이지 선택 화면 -->
+        <div id="stageSelect" class="screen">
+            <div class="stage-select-content">
+                <h2>스테이지 선택</h2>
+                <button class="back-btn" id="backFromStageSelect">← 메인 메뉴</button>
+                
+                <div class="stages-grid" id="stagesGrid">
+                    <!-- 스테이지들이 동적으로 생성됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 게임 화면 -->
+        <div id="gameScreen" class="screen">
+            <!-- 게임 UI -->
+            <div id="gameUI">
+                <!-- 상단 정보 -->
+                <div class="top-ui">
+                    <div class="score-info">
+                        <div class="score-item">
+                            <span class="label">점수</span>
+                            <span id="currentScore">0</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="label">콤보</span>
+                            <span id="currentCombo">0</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="label">정확도</span>
+                            <span id="accuracy">100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="song-info">
+                        <div id="songTitle">노래 제목</div>
+                        <div id="songProgress">
+                            <div id="progressBar"></div>
+                            <span id="timeDisplay">0:00 / 0:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 리듬 트랙 -->
+                <div id="rhythmTrack">
+                    <div class="track-line" id="trackLine"></div>
+                    <div class="hit-zone" id="hitZone"></div>
+                    <div class="hit-line-indicator" id="hitLineIndicator">
+                        <div class="hit-indicator">휙!</div>
+                    </div>
+                    <div class="notes-container" id="notesContainer">
+                        <!-- 노트들이 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 하단 컨트롤 -->
+                <div class="bottom-ui">
+                    <div class="game-controls">
+                        <button class="control-btn" id="pauseButton">⏸️</button>
+                        <button class="control-btn" id="stopButton">⏹️</button>
+                    </div>
+                    
+                    <div class="sensor-display">
+                        <div class="sensor-info">
+                            <span>하향 동작: <span id="shakeIntensity">0</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 판정 피드백 -->
+                <div id="judgmentFeedback" class="feedback-popup"></div>
+            </div>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="resultScreen" class="screen">
+            <div class="result-content">
+                <h2>게임 결과</h2>
+                <div class="result-stats">
+                    <div class="final-score">
+                        <span class="score-label">최종 점수</span>
+                        <span class="score-value" id="finalScore">0</span>
+                    </div>
+                    
+                    <div class="result-details">
+                        <div class="result-item">
+                            <span>최대 콤보:</span>
+                            <span id="maxCombo">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span>정확도:</span>
+                            <span id="finalAccuracy">0%</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Perfect:</span>
+                            <span id="perfectCount">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Good:</span>
+                            <span id="goodCount">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Miss:</span>
+                            <span id="missCount">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grade">
+                        <span id="gradeText">등급: </span>
+                        <span id="gradeValue">D</span>
+                    </div>
+                </div>
+                
+                <div class="result-buttons">
+                    <button class="menu-btn" id="playAgainButton">다시 플레이</button>
+                    <button class="menu-btn" id="backToMenuButton">메인 메뉴</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 스테이지 에디터 화면 -->
+        <div id="editorScreen" class="screen">
+            <div class="editor-content">
+                <h2>스테이지 에디터</h2>
+                <button class="back-btn" id="backFromEditor">← 메인 메뉴</button>
+                
+                <div class="editor-controls">
+                    <div class="file-controls">
+                        <input type="file" id="audioFile" accept="audio/*">
+                        <label for="audioFile" class="file-btn">음악 파일 선택</label>
+                        
+                        <input type="text" id="stageTitle" placeholder="스테이지 제목">
+                        <input type="text" id="artistName" placeholder="아티스트명">
+                    </div>
+                    
+                    <div class="editor-timeline">
+                        <div class="timeline-controls">
+                            <button id="playPauseBtn">▶️ 재생</button>
+                            <button id="stopBtn">⏹️ 정지</button>
+                            <span id="currentTime">0:00</span>
+                            <input type="range" id="timeSlider" min="0" max="100" value="0">
+                            <span id="totalTime">0:00</span>
+                        </div>
+                        
+                        <div class="timeline" id="timeline">
+                            <div class="playhead" id="playhead"></div>
+                            <div class="beats-container" id="beatsContainer">
+                                <!-- 비트 마커들이 표시됩니다 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-instructions">
+                        <h3>사용법:</h3>
+                        <p>1. 음악 파일을 선택하세요</p>
+                        <p>2. 노래를 들으며 흔들어야 할 타이밍에 스페이스바를 누르세요</p>
+                        <p>3. 완성되면 '저장' 버튼을 눌러주세요</p>
+                    </div>
+                    
+                    <div class="editor-buttons">
+                        <button id="clearBeats">모든 비트 삭제</button>
+                        <button id="saveStage">스테이지 저장</button>
+                        <button id="testStage">테스트 플레이</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시뮬레이션 모드 안내 -->
+        <div id="simulationMode" class="simulation-notice">
+            <h3>시뮬레이션 모드</h3>
+            <p>센서가 연결되지 않았습니다</p>
+            <p><strong>스페이스바:</strong> 흔들기 대신 사용</p>
+            <p><strong>ESC키:</strong> 메뉴로 돌아가기</p>
+        </div>
+    </div>
+
+    <!-- 게임 스크립트 -->
+    <script src="/rhythm-game/js/sensorManager.js"></script>
+    <script src="/rhythm-game/js/audioManager.js"></script>
+    <script src="/rhythm-game/js/rhythmEngine.js"></script>
+    <script src="/rhythm-game/js/stageManager.js"></script>
+    <script src="/rhythm-game/js/effectsManager.js"></script>
+    <script src="/rhythm-game/js/stageEditor.js"></script>
+    <script src="/rhythm-game/js/main.js"></script>
+</body>
+</html>
