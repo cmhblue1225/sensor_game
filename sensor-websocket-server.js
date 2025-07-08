@@ -84,6 +84,12 @@ function createRequestHandler() {
             // 리듬 게임 관련 정적 파일 서빙
             const relativePath = req.url.substring('/rhythm-game/'.length);
             filePath = path.join(__dirname, 'rhythm-game', relativePath);
+        } else if (req.url === '/temple-run-game' || req.url === '/temple-run') {
+            filePath = path.join(__dirname, 'temple-run-game', 'index.html');
+        } else if (req.url.startsWith('/temple-run-game/')) {
+            // 템플 런 게임 관련 정적 파일 서빙
+            const relativePath = req.url.substring('/temple-run-game/'.length);
+            filePath = path.join(__dirname, 'temple-run-game', relativePath);
         } else if (req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/assets/')) {
             // 게임의 절대 경로 리소스를 우주선 게임 디렉토리로 매핑 (우주선 게임 호환성 유지)
             filePath = path.join(__dirname, 'spaceship-game', req.url.substring(1));
@@ -522,6 +528,12 @@ server.listen(PORT, '0.0.0.0', () => {
         console.log(`     HTTPS: https://${localIP}:${HTTPS_PORT}/baseball-game`);
     }
     console.log(`     HTTP: http://${localIP}:${PORT}/baseball-game`);
+    
+    console.log(`   🏃‍♂️ 템플 런 3D 게임:`);
+    if (httpsServer) {
+        console.log(`     HTTPS: https://${localIP}:${HTTPS_PORT}/temple-run-game`);
+    }
+    console.log(`     HTTP: http://${localIP}:${PORT}/temple-run-game`);
     
     console.log(`\n💬 채팅 (기존 기능):`);
     console.log(`   클라이언트: http://${localIP}:${PORT}/client.html`);
