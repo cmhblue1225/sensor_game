@@ -7,12 +7,33 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="game-container">
+    <div id="main-menu">
+        <h1>Temple Run 3D</h1>
+        <p>Escape the ancient temple! Tilt your device to dodge obstacles and collect coins.</p>
+        <button id="start-game-btn">Start Game</button>
+        <a href="../index.html" class="back-to-main-menu">🏠 Main Menu</a>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <div id="loadingScreen">
+            <h1>Temple Run 3D</h1>
+            <p>Loading...</p>
+        </div>
         <canvas id="gameCanvas"></canvas>
         <div id="ui-container">
             <div id="score-display" class="gold-frame">Score: 0</div>
+            <div id="sensorConnection">📡 Connecting to sensor...</div>
+            <div id="sensorConnection">📡 Connecting to sensor...</div>
         </div>
+        <div id="gameOverScreen" style="display: none;">
+            <h2>Game Over</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()">Restart</button>
+            <button onclick="goToMain()">Main Menu</button>
+        </div>
+        <a href="../index.html" class="back-to-main">🏠 Main Menu</a>
     </div>
+    <script type="module" src="js/sensorManager.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
